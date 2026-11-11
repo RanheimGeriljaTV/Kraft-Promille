@@ -38,6 +38,9 @@ describe('Kraft Promille', () => {
     expect(screen.getByRole('complementary', { name: 'Ansvarsfraskrivelse' })).toHaveTextContent(
       'Kun et matematisk estimat. Individuelle forskjeller i leverfunksjon, dagsform og medisiner påvirker forbrenningen. Ikke bruk kalkulatoren som fasit for bilkjøring.',
     );
+    expect(screen.getByRole('complementary', { name: 'Ansvarsfraskrivelse' })).toHaveTextContent(
+      'Ranheim Kraft tar ikke ansvar for bruken av kalkulatoren eller for beslutninger du tar ut fra den. Du bruker den på eget ansvar. Det er juridisk umulig å skylde på kalkulatoren: ansvaret for å være edru bak rattet er alltid ditt.',
+    );
   });
 
   it('starter på 0,00 uten enheter', () => {

@@ -7,6 +7,12 @@ og prosjektet følger [Semantic Versioning](https://semver.org/lang/no/).
 
 ## [Unreleased]
 
+## [0.1.3] - 2026-11-11
+
+### Lagt til
+
+- Ansvarsfraskrivelsen fra Ranheim Kraft: ingen ansvar for bruken av kalkulatoren, bruk på eget ansvar, og det er juridisk umulig å skylde på kalkulatoren.
+
 ## [0.1.2] - 2026-11-11
 
 ### Endret
@@ -39,7 +45,8 @@ og prosjektet følger [Semantic Versioning](https://semver.org/lang/no/).
 - Tester med Vitest for regnemodell, klokkeslett, appen, lagring, tilgjengelighet (axe) og SEO.
 - Workflow som tester, bygger, publiserer forhåndsvisning på GitHub Pages og pusher bygget til grenen `build`.
 
-[Unreleased]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.2...HEAD
+[Unreleased]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.3...HEAD
+[0.1.3]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/RanheimGeriljaTV/Kraft-Promille/releases/tag/v0.1.0
