@@ -16,12 +16,12 @@ export const FAQ = [
   {
     question: 'Når kan jeg kjøre bil etter å ha drukket?',
     answer:
-      'Grensen i Norge er 0,2 promille, men du kan være påvirket også under grensen. Bruk aldri kalkulatoren som fasit, og vent heller til du er helt edru.',
+      'Over 0,2 promille regnes du alltid som påvirket, men du kan også straffes under 0,2 hvis du er påvirket, og det vurderes etter skjønn og oppførsel. Det eneste trygge er 0,00 promille, så bruk aldri kalkulatoren som fasit.',
   },
   {
     question: 'Hva er 12-timersregelen?',
     answer:
-      'En tommelfingerregel om å vente minst 12 timer etter siste enhet før du kjører. Etter en lang kveld kan du fortsatt ha alkohol i blodet etter 12 timer, så kalkulatoren viser regelen ved siden av din egen utregning.',
+      'En tommelfingerregel om å vente 12 timer etter siste enhet før du kjører, men den er ikke til å stole på. Hvor lang tid du trenger, avhenger av hvor mye, hvor sterkt og hvor tett du har drukket, så bruk heller sikker sone.',
   },
   {
     question: 'Hvor mye er en alkoholenhet?',

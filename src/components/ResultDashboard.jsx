@@ -326,27 +326,31 @@ export default function ResultDashboard({ index, result, now }) {
 
         <Card
           icon={Car}
-          title="Norsk lovgrense (0,2 ‰) & 0,00 ‰"
+          title="Bilkjøring: 0,00 ‰ og 0,2 ‰-grensen"
           subtitle={`Normal forbrenning ${fmtRate(BURN_NORMAL)} ‰/t`}
         >
           <dl className="grid grid-cols-2 gap-3">
-            <div>
-              <dt className="font-mono text-[11px] text-zinc-400 uppercase">Under 0,2 ‰</dt>
-              <dd>
-                {hasDrinks && normal.legalAt === null ? (
-                  <span className="block text-sm text-zinc-300">Aldri over grensen</span>
-                ) : (
-                  <When ts={hasDrinks ? normal.legalAt : null} now={now} />
-                )}
-              </dd>
-            </div>
             <div>
               <dt className="font-mono text-[11px] text-zinc-400 uppercase">0,00 ‰</dt>
               <dd data-testid="normal-sober">
                 <When ts={hasDrinks ? normal.soberAt : null} now={now} />
               </dd>
             </div>
+            <div>
+              <dt className="font-mono text-[11px] text-zinc-400 uppercase">Under 0,2 ‰</dt>
+              <dd>
+                {hasDrinks && normal.legalAt === null ? (
+                  <span className="block text-sm text-zinc-300">Aldri over 0,2 ‰</span>
+                ) : (
+                  <When ts={hasDrinks ? normal.legalAt : null} now={now} />
+                )}
+              </dd>
+            </div>
           </dl>
+          <p className="text-xs leading-snug text-zinc-300">
+            Over 0,2 ‰ regnes du alltid som påvirket. Under 0,2 ‰ kan du likevel straffes hvis du er
+            påvirket, og det vurderes etter skjønn og oppførsel. Kjør først på 0,00 ‰.
+          </p>
         </Card>
 
         <Card
@@ -367,7 +371,9 @@ export default function ResultDashboard({ index, result, now }) {
           icon={Hourglass}
           title="12-timersregelen etter siste enhet"
           subtitle={
-            hasDrinks ? `Siste enhet kl. ${toHHMM(result.lastDrinkAt)}` : 'Tommelfingerregel'
+            hasDrinks
+              ? `Siste enhet kl. ${toHHMM(result.lastDrinkAt)} · bare en tommelfingerregel`
+              : 'Bare en tommelfingerregel'
           }
           className="sm:col-span-2"
         >
@@ -385,6 +391,10 @@ export default function ResultDashboard({ index, result, now }) {
               </p>
             )}
           </div>
+          <p className="text-xs leading-snug text-zinc-400">
+            Ikke stol på 12-timersregelen. Hvor lang tid du trenger, avhenger av hvor mye, hvor
+            sterkt og hvor tett du har drukket. Bruk heller sikker sone.
+          </p>
         </Card>
       </div>
 

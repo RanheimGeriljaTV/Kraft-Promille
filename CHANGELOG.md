@@ -7,6 +7,14 @@ og prosjektet følger [Semantic Versioning](https://semver.org/lang/no/).
 
 ## [Unreleased]
 
+## [0.1.2] - 2026-11-11
+
+### Endret
+
+- Kortet for bilkjøring heter nå «Bilkjøring: 0,00 ‰ og 0,2 ‰-grensen», viser 0,00 ‰ først og forklarer at du kan straffes også under 0,2 ‰ hvis du er påvirket (vurderes etter skjønn og oppførsel). Fargeforklaringen og «Spørsmål og svar» sier det samme.
+- 12-timersregelen har fått en tydelig advarsel: den er ikke til å stole på, fordi tiden avhenger av hvor mye, hvor sterkt og hvor tett man har drukket.
+- Personvern-boksen er gjort om til en liten linje under ansvarsfraskrivelsen: «100 % privat: det du skriver inn, lagres bare på enheten din.»
+
 ## [0.1.1] - 2026-11-11
 
 ### Endret
@@ -31,6 +39,7 @@ og prosjektet følger [Semantic Versioning](https://semver.org/lang/no/).
 - Tester med Vitest for regnemodell, klokkeslett, appen, lagring, tilgjengelighet (axe) og SEO.
 - Workflow som tester, bygger, publiserer forhåndsvisning på GitHub Pages og pusher bygget til grenen `build`.
 
-[Unreleased]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.1...HEAD
+[Unreleased]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.2...HEAD
+[0.1.2]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.1...v0.1.2
 [0.1.1]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/RanheimGeriljaTV/Kraft-Promille/releases/tag/v0.1.0

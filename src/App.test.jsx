@@ -32,8 +32,8 @@ describe('Kraft Promille', () => {
 
   it('viser personvern-banner og ansvarsfraskrivelse', () => {
     render(<App />);
-    expect(screen.getByText(/100 % Privat:/).parentElement).toHaveTextContent(
-      '100 % Privat: Alt du skriver inn, lagres kun lokalt på din egen mobil/PC. Ingenting av det sendes over nett.',
+    expect(screen.getByText(/100 % privat:/).parentElement).toHaveTextContent(
+      '100 % privat: det du skriver inn, lagres bare på enheten din.',
     );
     expect(screen.getByRole('complementary', { name: 'Ansvarsfraskrivelse' })).toHaveTextContent(
       'Kun et matematisk estimat. Individuelle forskjeller i leverfunksjon, dagsform og medisiner påvirker forbrenningen. Ikke bruk kalkulatoren som fasit for bilkjøring.',
@@ -191,7 +191,7 @@ describe('Tilgjengelighet (axe)', () => {
         .map((h) => h.textContent),
     ).toEqual([
       'Estimert promille nå',
-      'Norsk lovgrense (0,2 ‰) & 0,00 ‰',
+      'Bilkjøring: 0,00 ‰ og 0,2 ‰-grensen',
       'Grønt lys / Sikker sone',
       '12-timersregelen etter siste enhet',
     ]);

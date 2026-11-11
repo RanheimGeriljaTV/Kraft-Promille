@@ -3,11 +3,11 @@ import { Lock, TriangleAlert } from 'lucide-react';
 /** Personvern-banner øverst på siden. */
 export function PrivacyBanner() {
   return (
-    <p className="flex items-start gap-2.5 rounded-2xl border border-emerald-400/30 bg-emerald-400/[0.07] p-3 text-sm leading-snug text-emerald-100">
-      <Lock aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-emerald-300" />
+    <p className="flex items-center gap-1.5 font-mono text-[11px] leading-snug text-emerald-300">
+      <Lock aria-hidden="true" className="size-3 shrink-0" />
       <span>
-        <strong className="font-bold text-white">100 % Privat:</strong> Alt du skriver inn, lagres
-        kun lokalt på din egen mobil/PC. Ingenting av det sendes over nett.
+        <strong className="font-bold">100 % privat:</strong> det du skriver inn, lagres bare på
+        enheten din.
       </span>
     </p>
   );
@@ -32,9 +32,9 @@ export function Disclaimer({ className = '' }) {
 
 export default function PrivacyAndDisclaimer() {
   return (
-    <div className="grid gap-2 lg:grid-cols-2">
-      <PrivacyBanner />
+    <div className="space-y-2">
       <Disclaimer />
+      <PrivacyBanner />
     </div>
   );
 }

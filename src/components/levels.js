@@ -20,7 +20,7 @@ export const LEVEL_STYLE = {
 
 export const LEVEL_LEGEND = [
   { key: 'red', label: 'Over 0,5 ‰' },
-  { key: 'orange', label: '0,2–0,5 ‰ – over lovlig grense' },
-  { key: 'yellow', label: '0,01–0,19 ‰ – under grensen, men alkohol i blodet' },
+  { key: 'orange', label: '0,2–0,5 ‰ – over promillegrensen' },
+  { key: 'yellow', label: '0,01–0,19 ‰ – under 0,2, men du kan straffes hvis du er påvirket' },
   { key: 'green', label: '0,00 ‰ på begge kurver' },
 ];

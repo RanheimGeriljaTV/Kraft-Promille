@@ -4,7 +4,7 @@
 
 Regner ut omtrent hvor høy promillen er nå, når den er under 0,2 og når den er helt nede på 0,00, med norske drikke-enheter. Alt regnes ut i nettleseren, og økten lagres bare lokalt (`localStorage`), slik at du kan lukke siden på fest og åpne den igjen senere på kvelden eller morgenen etter.
 
-> **Status:** v0.1.1. Skal ligge på **https://ranheimkraft.no/promille/** (nettsiden henter nye versjoner innen 3 timer etter at den er koblet på).
+> **Status:** v0.1.2. Skal ligge på **https://ranheimkraft.no/promille/** (nettsiden henter nye versjoner innen 3 timer etter at den er koblet på).
 >
 > **Forhåndsvisning:** https://ranheimgeriljatv.github.io/Kraft-Promille/
 
@@ -55,9 +55,9 @@ Enhetene ligger i [`src/data/drinks.js`](src/data/drinks.js).
 ### Resultat
 
 1. **Estimert promille nå** med typisk påvirkning og toppunktet i kveld.
-2. **Norsk lovgrense (0,2 ‰) & 0,00 ‰** med normal forbrenning (0,15 ‰/t).
+2. **Bilkjøring: 0,00 ‰ og 0,2 ‰-grensen** med normal forbrenning (0,15 ‰/t). Kortet forklarer at du kan straffes også under 0,2 ‰ hvis du er påvirket (vurderes etter skjønn og oppførsel), og at bare 0,00 ‰ er trygt.
 3. **Grønt lys / Sikker sone** med konservativ forbrenning (0,10 ‰/t) og full opptakstid (60 min). Uthevet som det tryggeste valget.
-4. **12-timersregelen** – 12 timer etter siste enhet, sammenlignet med sikker sone.
+4. **12-timersregelen** – 12 timer etter siste enhet, sammenlignet med sikker sone, med en advarsel om at regelen ikke er til å stole på (tiden avhenger av mengde, styrke og hvor tett man drikker).
 5. **Time for time**: graf over begge kurvene og tabell fra første enhet til begge er på 0,00, med fargekoder: rød (> 0,5), oransje (0,2–0,5), gul (0,01–0,19) og grønn (0,00 på begge).
 
 Alle klokkeslett rundes **opp** til nærmeste 5 minutter. På mobil viser en fast linje nederst promillen nå og når sikker sone (0,00 ‰) nås. På PC (fra 1024 px) er siden et dashbord med to kolonner (maks 1280 px): profil og drikke til venstre (5/12), resultat til høyre (7/12).
@@ -80,7 +80,7 @@ Tallene er anslag. Leverfunksjon, dagsform, medisiner og mat gjør at den faktis
 
 - Kalkulatoren gjør ingen API-kall. Fontene (Syne, Plus Jakarta Sans og JetBrains Mono) ligger i bygget via `@fontsource`, så siden henter ingenting fra Google.
 - Profil, valgt styrke, modus og kveldens drikkeliste lagres i `localStorage` under nøkkelen `kraft-promille:v1`. Lagret data valideres når siden åpnes, og appen virker også når lagring er blokkert.
-- **NB:** På ranheimkraft.no legger synk-skriptet inn Umami, som teller sidevisninger (uten informasjonskapsler og uten det du skriver inn). Derfor sier banneret at det du skriver inn, ikke sendes over nett, og ikke at siden ikke sender noe i det hele tatt.
+- **NB:** På ranheimkraft.no legger synk-skriptet inn Umami, som teller sidevisninger (uten informasjonskapsler og uten det du skriver inn). Derfor sier den lille personvern-linjen at det du skriver inn, lagres bare på enheten din, og ikke at siden ikke sender noe i det hele tatt.
 
 ## Utvikling
 
