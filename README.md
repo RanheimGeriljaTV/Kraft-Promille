@@ -4,7 +4,7 @@
 
 Regner ut omtrent hvor høy promillen er nå, når den er under 0,2 og når den er helt nede på 0,00, med norske drikke-enheter. Alt regnes ut i nettleseren, og økten lagres bare lokalt (`localStorage`), slik at du kan lukke siden på fest og åpne den igjen senere på kvelden eller morgenen etter.
 
-> **Status:** v0.2.0. Skal ligge på **https://ranheimkraft.no/promille/** (nettsiden henter nye versjoner innen 3 timer etter at den er koblet på).
+> **Status:** v0.3.0. Skal ligge på **https://ranheimkraft.no/promille/** (nettsiden henter nye versjoner innen 3 timer etter at den er koblet på).
 >
 > **Forhåndsvisning:** https://ranheimgeriljatv.github.io/Kraft-Promille/
 
@@ -47,7 +47,10 @@ Enhetene ligger i [`src/data/drinks.js`](src/data/drinks.js).
 
 ### To tidsmoduser
 
-- **Logg fortløpende:** hvert trykk legger til enheten med klokkeslettet nå. Klokkeslettet kan endres på hver linje etterpå (f.eks. 19:30), og linjen kan fjernes. Et klokkeslett flyttes til nærmeste dag, så 23:50 på en enhet registrert 00:10 blir kvelden før.
+- **Logg fortløpende:** hvert trykk legger til enheten med klokkeslettet nå. Enheten regnes som drukket jevnt over en **drikketid**, ikke alt på én gang (se under). Klokkeslettet kan endres på hver linje etterpå (f.eks. 19:30), og linjen kan fjernes. Et klokkeslett flyttes til nærmeste dag, så 23:50 på en enhet registrert 00:10 blir kvelden før.
+  - **Standard drikketid** per kategori: øl 0,4 l 30 min, øl 0,5 l 40 min, øl 0,6 l 45 min, glass vin 45 min, drink/dram 20 min og shot 1 min (`defaultMinutes` i [`src/data/drinks.js`](src/data/drinks.js)).
+  - **«Ferdig»-knapp** på hver linje: trykk når du har drukket opp, så brukes den faktiske tiden fra start til nå (minst 1 og maks 180 min). Linjen viser «Drikker nå · antas ferdig kl. …» til standardtiden er gått, og «Drukket over … min» når du har trykket. Knappen vises i to timer etter at enheten ble lagt til. Endrer du startklokkeslettet, beholdes drikketiden.
+  - Fordelingen gjør at toppen blir lavere og kommer senere enn om hele enheten var drukket på ett tidspunkt. Siste slurk (og dermed 12-timersregelen) regnes fra slutten av siste drikketid.
 - **Oppsummer i etterkant:** velg «Startet å drikke kl.» og «Sluttet å drikke kl.» og tell opp antallet av hver enhet. Enhetene fordeles jevnt fra start til slutt (første ved start, siste ved slutt), og typene flettes. Starttiden er siste gang klokka var det klokkeslettet, og sluttiden er første gang etter start, så 19:00–01:30 går over midnatt.
 
 **Start ny kveld / Tøm liste** tømmer drikkelisten i begge modusene, men beholder profilen.
@@ -71,7 +74,7 @@ Ligger i [`src/utils/bacCalculator.js`](src/utils/bacCalculator.js) og er testet
    - Kvinne: `TBW = −2,097 + 0,1069 × høyde + 0,2466 × vekt` (bruker ikke alder)
 2. **Gram alkohol per enhet** med 10 % resorpsjonstap: `volum i dl × prosent × 0,789 × 0,90`.
 3. **Promille** = `gram × 0,8 / TBW`. Alkoholen fordeler seg i kroppsvæsken, og blod er ca. 80 % vann. For en mann på 80 kg, 180 cm og 30 år gir dette omtrent det samme som Widmark med r = 0,7.
-4. **Gradvis opptak:** hver enhet tas opp lineært over 30 min (tom mage) eller 60 min (mat) fra klokkeslettet den ble drukket.
+4. **Drikketid og gradvis opptak:** hver enhet drikkes jevnt over drikketiden (porsjoner à ca. 5 min), og hver porsjon tas opp lineært over 30 min (tom mage) eller 60 min (mat).
 5. **Forbrenning fra første slurk**, så lenge promillen er over 0. Kurven simuleres minutt for minutt og samples hvert 15. minutt til grafen. To kurver regnes ut parallelt: normal (0,15 ‰/t) og konservativ (0,10 ‰/t, minst 60 min opptak).
 
 Tallene er anslag. Leverfunksjon, dagsform, medisiner og mat gjør at den faktiske promillen kan avvike mye.

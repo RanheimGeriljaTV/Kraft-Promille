@@ -63,7 +63,7 @@ describe('Kraft Promille', () => {
       target: { value: '20:30' },
     });
     expect(promilleNow()).not.toBe('0,00‰');
-    expect(screen.getByTestId('twelve-hour')).toHaveTextContent('kl. 08:30');
+    expect(screen.getByTestId('twelve-hour')).toHaveTextContent('kl. 09:10');
     expect(screen.getByTestId('safe-sober')).toHaveTextContent('kl.');
     expect(screen.getByRole('table')).toBeInTheDocument();
     expect(saved().entries).toHaveLength(2);
@@ -158,6 +158,49 @@ describe('Vilkår og ansvarsfraskrivelse', () => {
   });
 });
 
+describe('Drikketid og «Ferdig»', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'Date'] });
+    vi.setSystemTime(at(14, 22, 0));
+  });
+  afterEach(() => vi.useRealTimers());
+
+  it('antar standard drikketid, og «Ferdig» setter den faktiske tiden', () => {
+    render(<App />);
+    add('Øl 0,5 l');
+    expect(screen.getByText('Drikker nå · antas ferdig kl. 22:40')).toBeInTheDocument();
+    // «Ferdig» er med en gang, selv om klokken i appen bare oppdateres hvert 30. sekund.
+    expect(screen.getByRole('button', { name: /^Ferdig med Øl 0,5 l/ })).toBeInTheDocument();
+    expect(saved().entries[0].durationMin).toBeNull();
+
+    act(() => vi.advanceTimersByTime(30 * 60 * 1000));
+    fireEvent.click(screen.getByRole('button', { name: /^Ferdig med Øl 0,5 l/ }));
+    expect(screen.getByText('Drukket over 30 min')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Ferdig med/ })).not.toBeInTheDocument();
+    expect(saved().entries[0].durationMin).toBe(30);
+  });
+
+  it('beholder drikketiden når startklokkeslettet endres', () => {
+    render(<App />);
+    add('Øl 0,5 l');
+    act(() => vi.advanceTimersByTime(20 * 60 * 1000));
+    fireEvent.click(screen.getByRole('button', { name: /^Ferdig med/ }));
+    fireEvent.change(screen.getByLabelText(/^Klokkeslett for Øl 0,5 l/), {
+      target: { value: '21:30' },
+    });
+    expect(screen.getByText('Drukket over 20 min')).toBeInTheDocument();
+    expect(screen.getByTestId('twelve-hour')).toHaveTextContent('kl. 09:50');
+  });
+
+  it('slår «Ferdig» av etter to timer, og sier at tiden er antatt', () => {
+    render(<App />);
+    add('Øl 0,5 l');
+    act(() => vi.advanceTimersByTime(2 * 60 * 60 * 1000 + 60 * 1000));
+    expect(screen.queryByRole('button', { name: /^Ferdig med/ })).not.toBeInTheDocument();
+    expect(screen.getByText('Antatt drukket over 40 min')).toBeInTheDocument();
+  });
+});
+
 describe('restoreState', () => {
   it('retter opp ugyldige og manglende verdier', () => {
     const state = restoreState(
@@ -181,6 +224,21 @@ describe('restoreState', () => {
     expect(state.choices.wine).toEqual({ volume: 0, strength: 1 });
     expect(state.entries).toEqual([]);
     expect(state.summary.startTs).toBe(at(14, 19, 0));
+  });
+
+  it('retter opp ugyldig drikketid på lagrede enheter', () => {
+    const entry = { id: 'a', ts: at(14, 20, 0), drinkId: 'beer-05', volumeDl: 5, abv: 4.7 };
+    const { entries } = restoreState(
+      {
+        entries: [
+          { ...entry, id: 'a', durationMin: -5 },
+          { ...entry, id: 'b', durationMin: 35 },
+          { ...entry, id: 'c' },
+        ],
+      },
+      at(14, 22, 0),
+    );
+    expect(entries.map((e) => e.durationMin)).toEqual([null, 35, null]);
   });
 
   it('tåler at localStorage er ødelagt', () => {

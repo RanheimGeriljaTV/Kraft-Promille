@@ -1,5 +1,5 @@
 /**
- * Norske drikke-enheter. Første volum er standard, og standardstyrken er `defaultStrength`
+ * Norske drikke-enheter. `defaultMinutes` er standard drikketid i fortløpende modus. Første volum er standard, og standardstyrken er `defaultStrength`
  * (indeks i `strengths`, 0 hvis den ikke er satt).
  * Legg til en ny kategori ved å legge til et objekt i listen.
  * Ikonene er navn på Lucide-ikoner (se DrinkLogger.jsx).
@@ -7,6 +7,7 @@
 export const DRINKS = [
   {
     id: 'beer-04',
+    defaultMinutes: 30,
     icon: 'Beer',
     name: 'Øl 0,4 l',
     hint: 'Fatøl / utepils',
@@ -19,6 +20,7 @@ export const DRINKS = [
   },
   {
     id: 'beer-05',
+    defaultMinutes: 40,
     icon: 'Beer',
     name: 'Øl 0,5 l',
     hint: 'Boks / halvliter',
@@ -31,6 +33,7 @@ export const DRINKS = [
   },
   {
     id: 'beer-06',
+    defaultMinutes: 45,
     icon: 'Beer',
     name: 'Øl 0,6 l',
     hint: 'Stor tappekran / seidel',
@@ -42,6 +45,7 @@ export const DRINKS = [
   },
   {
     id: 'wine',
+    defaultMinutes: 45,
     icon: 'Wine',
     name: 'Glass vin',
     hint: 'Rødvin / hvitvin / bobler',
@@ -59,6 +63,7 @@ export const DRINKS = [
   },
   {
     id: 'cocktail',
+    defaultMinutes: 20,
     icon: 'Martini',
     name: 'Drink / dram',
     hint: '4 cl brennevin (skjenkestandard)',
@@ -71,6 +76,7 @@ export const DRINKS = [
   },
   {
     id: 'shot',
+    defaultMinutes: 1,
     icon: 'GlassWater',
     name: 'Shot',
     hint: 'Shotglass',

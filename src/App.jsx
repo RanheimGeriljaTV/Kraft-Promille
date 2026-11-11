@@ -46,12 +46,26 @@ export default function App() {
       update((prev) => {
         const { volumeDl, abv } = resolveChoice(findDrink(drinkId), prev.choices[drinkId]);
         return {
-          entries: [...prev.entries, { id: newId(), ts: Date.now(), drinkId, volumeDl, abv }],
+          entries: [
+            ...prev.entries,
+            { id: newId(), ts: Date.now(), drinkId, volumeDl, abv, durationMin: null },
+          ],
         };
       }),
     onRetime: (id, text) =>
       update((prev) => ({
         entries: prev.entries.map((e) => (e.id === id ? { ...e, ts: retime(e.ts, text) } : e)),
+      })),
+    onFinish: (id) =>
+      update((prev) => ({
+        entries: prev.entries.map((e) =>
+          e.id === id
+            ? {
+                ...e,
+                durationMin: Math.min(180, Math.max(1, Math.round((Date.now() - e.ts) / 60000))),
+              }
+            : e,
+        ),
       })),
     onRemove: (id) => update((prev) => ({ entries: prev.entries.filter((e) => e.id !== id) })),
     onSummaryTime: (which, text) =>
@@ -111,6 +125,7 @@ export default function App() {
             choices={choices}
             entries={entries}
             summary={summary}
+            now={now}
             {...handlers}
           />
         </div>

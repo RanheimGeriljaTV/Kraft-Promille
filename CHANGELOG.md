@@ -7,6 +7,18 @@ og prosjektet følger [Semantic Versioning](https://semver.org/lang/no/).
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-11-11
+
+### Lagt til
+
+- Drikketid i fortløpende modus: hver enhet regnes som drukket jevnt over en standardtid per kategori (øl 30–45 min, vin 45 min, drink 20 min, shot 1 min) i stedet for alt på ett tidspunkt.
+- «Ferdig»-knapp på hver registrerte enhet som setter den faktiske drikketiden. Linjen viser «Drikker nå», «Drukket over … min» eller «Antatt drukket over … min».
+
+### Endret
+
+- Siste slurk, og dermed 12-timersregelen, regnes fra slutten av siste drikketid.
+- Lagrede enheter får feltet `durationMin`. Eldre lagrede økter fungerer som før, med standard drikketid.
+
 ## [0.2.0] - 2026-11-11
 
 ### Lagt til
@@ -61,7 +73,8 @@ og prosjektet følger [Semantic Versioning](https://semver.org/lang/no/).
 - Tester med Vitest for regnemodell, klokkeslett, appen, lagring, tilgjengelighet (axe) og SEO.
 - Workflow som tester, bygger, publiserer forhåndsvisning på GitHub Pages og pusher bygget til grenen `build`.
 
-[Unreleased]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.4...v0.2.0
 [0.1.4]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.2...v0.1.3

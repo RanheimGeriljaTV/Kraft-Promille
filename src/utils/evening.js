@@ -1,9 +1,19 @@
 import { findDrink, resolveChoice } from '../data/drinks';
 import { gramsAlcohol } from './bacCalculator';
 
-/** Modus A: hver registrerte enhet med eget klokkeslett. */
+const MINUTE = 60 * 1000;
+
+/** Drikketid i minutter: den du har markert med «Ferdig», ellers standardtiden for kategorien. */
+export const drinkMinutes = (entry) =>
+  entry.durationMin ?? findDrink(entry.drinkId)?.defaultMinutes ?? 0;
+
+/** Modus A: hver registrerte enhet med eget klokkeslett, drukket jevnt over drikketiden. */
 export const entriesToDrinks = (entries) =>
-  entries.map((e) => ({ ts: e.ts, grams: gramsAlcohol(e.volumeDl, e.abv) }));
+  entries.map((e) => ({
+    ts: e.ts,
+    grams: gramsAlcohol(e.volumeDl, e.abv),
+    durationMs: drinkMinutes(e) * MINUTE,
+  }));
 
 /**
  * Modus B: totalt antall av hver enhet fordeles jevnt mellom start og slutt.

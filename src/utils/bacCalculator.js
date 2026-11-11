@@ -6,7 +6,8 @@
  * 2. Gram alkohol per enhet, med 10 % resorpsjonstap i mage/lever.
  * 3. Promille = gram × 0,8 / TBW. Alkoholen fordeler seg i kroppsvæsken, og blod er ca. 80 % vann,
  *    så dette er Widmark-korreksjonen der TBW er den faktiske væskefordelingen.
- * 4. Hver enhet tas opp lineært over 30 min (tom mage) eller 60 min (mat).
+ * 4. Hver enhet drikkes jevnt over drikketiden (`durationMs`, 0 = alt på en gang), og alkoholen
+ *    tas opp lineært over 30 min (tom mage) eller 60 min (mat).
  * 5. Forbrenningen starter med første slurk og går så lenge promillen er over 0:
  *    0,15 ‰/t (normal) og 0,10 ‰/t (konservativ sikkerhetsmargin).
  *
@@ -48,6 +49,16 @@ export const gramsAlcohol = (volumeDl, abvPercent) =>
 /** Promillebidraget fra et antall gram alkohol. */
 export const promilleFromGrams = (grams, tbw) => (tbw > 0 ? (grams * BLOOD_WATER) / tbw : 0);
 
+/** Deler en enhet i porsjoner à ca. 5 min, så drikketiden kan simuleres. */
+function portions({ ts, grams, durationMs = 0 }) {
+  const duration = Math.max(0, durationMs);
+  const n = Math.max(1, Math.round(duration / (5 * MINUTE)));
+  return Array.from({ length: n }, (_, i) => ({
+    ts: ts + ((i + 0.5) * duration) / n,
+    grams: grams / n,
+  }));
+}
+
 /** Hvor stor del av [start, start + varighet] som ligger innenfor [a, b]. */
 function overlapShare(a, b, start, duration) {
   const overlap = Math.min(b, start + duration) - Math.max(a, start);
@@ -57,7 +68,7 @@ function overlapShare(a, b, start, duration) {
 /**
  * Simulerer promillekurven minutt for minutt.
  *
- * @param {{ ts: number, grams: number }[]} drinks
+ * @param {{ ts: number, grams: number, durationMs?: number }[]} drinks
  * @param {{ tbw: number, burnRate: number, absorptionMinutes: number }} options
  * @returns {{ points: { t: number, bac: number }[], start: number | null, peak: number,
  *   peakAt: number | null, legalAt: number | null, soberAt: number | null }}
@@ -73,9 +84,11 @@ export function simulate(drinks, { tbw, burnRate, absorptionMinutes }) {
   const stepMs = STEP_MINUTES * MINUTE;
   const burnPerStep = (burnRate * STEP_MINUTES) / 60;
   const start = Math.min(...valid.map((d) => d.ts));
-  const allAbsorbed = Math.max(...valid.map((d) => d.ts)) + absorbMs;
+  const allAbsorbed = Math.max(...valid.map((d) => d.ts + (d.durationMs ?? 0))) + absorbMs;
   const limit = start + MAX_HOURS * 60 * MINUTE;
-  const promilles = valid.map((d) => ({ ts: d.ts, bac: promilleFromGrams(d.grams, tbw) }));
+  const promilles = valid
+    .flatMap(portions)
+    .map((p) => ({ ts: p.ts, bac: promilleFromGrams(p.grams, tbw) }));
 
   const points = [{ t: start, bac: 0 }];
   let bac = 0;
@@ -132,7 +145,7 @@ export function sample(points, from, to, minutes = 15) {
  *
  * @param {{ sex: 'male' | 'female', age: number, heightCm: number, weightKg: number,
  *   stomach: 'empty' | 'fed' }} profile
- * @param {{ ts: number, grams: number }[]} drinks
+ * @param {{ ts: number, grams: number, durationMs?: number }[]} drinks
  * @param {number} now
  */
 export function calculateEvening(profile, drinks, now) {
@@ -150,12 +163,12 @@ export function calculateEvening(profile, drinks, now) {
       ABSORPTION_MINUTES[profile.stomach] ?? SAFE_ABSORPTION_MINUTES,
     ),
   });
-  const timestamps = drinks.filter((d) => d.grams > 0).map((d) => d.ts);
-  const lastDrinkAt = timestamps.length ? Math.max(...timestamps) : null;
+  const finished = drinks.filter((d) => d.grams > 0).map((d) => d.ts + (d.durationMs ?? 0));
+  const lastDrinkAt = finished.length ? Math.max(...finished) : null;
 
   return {
     tbw,
-    hasDrinks: timestamps.length > 0,
+    hasDrinks: finished.length > 0,
     now: bacAt(normal.points, now),
     nowSafe: bacAt(safe.points, now),
     normal,

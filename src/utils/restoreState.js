@@ -41,10 +41,15 @@ export function restoreState(saved, now) {
   );
 
   const entries = Array.isArray(saved?.entries)
-    ? saved.entries.filter(
-        (e) =>
-          e && isNum(e.ts) && findDrink(e.drinkId) && isNum(e.volumeDl) && isNum(e.abv) && e.id,
-      )
+    ? saved.entries
+        .filter(
+          (e) =>
+            e && isNum(e.ts) && findDrink(e.drinkId) && isNum(e.volumeDl) && isNum(e.abv) && e.id,
+        )
+        .map((e) => ({
+          ...e,
+          durationMin: isNum(e.durationMin) && e.durationMin > 0 ? e.durationMin : null,
+        }))
     : [];
 
   const s = saved?.summary;

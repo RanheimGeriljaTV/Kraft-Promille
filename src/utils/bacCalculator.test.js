@@ -67,6 +67,16 @@ describe('simulate', () => {
     expect(empty.peakAt).toBe(T0 + 0.5 * H);
   });
 
+  it('fordeler en enhet over drikketiden: lavere og senere topp, og senere edru', () => {
+    const instant = simulate([{ ts: T0, grams: 50 }], opts(30));
+    const slow = simulate([{ ts: T0, grams: 50, durationMs: H }], opts(30));
+    expect(slow.peak).toBeLessThan(instant.peak);
+    expect(slow.peakAt).toBeGreaterThan(instant.peakAt);
+    expect(slow.soberAt).toBeGreaterThan(instant.soberAt);
+    expect(slow.soberAt - instant.soberAt).toBeLessThan(H);
+    expect(slow.start).toBe(T0);
+  });
+
   it('stopper forbrenningen på 0 mellom to drinker', () => {
     // 10 g → 0,2 ‰, forbrent etter ca. 1,3 t. Ny drink etter 5 t skal starte fra 0, ikke minus.
     const drinks = [
@@ -97,6 +107,13 @@ describe('calculateEvening', () => {
     const safeHours = (r.safe.soberAt - T0) / H;
     expect(safeHours / normalHours).toBeCloseTo(BURN_NORMAL / BURN_SAFE, 0);
     expect(r.twelveHourAt).toBe(T0 + 1.5 * H + 12 * H);
+  });
+
+  it('regner siste slurk som slutten på siste drikketid', () => {
+    const drinks = [{ ts: T0, grams: 12, durationMs: 40 * 60 * 1000 }];
+    const r = calculateEvening(man, drinks, T0);
+    expect(r.lastDrinkAt).toBe(T0 + 40 * 60 * 1000);
+    expect(r.twelveHourAt).toBe(T0 + 40 * 60 * 1000 + 12 * H);
   });
 
   it('gir 0 og ingen tidspunkter uten drinker', () => {

@@ -372,7 +372,7 @@ export default function ResultDashboard({ index, result, now }) {
           title="12-timersregelen etter siste enhet"
           subtitle={
             hasDrinks
-              ? `Siste enhet kl. ${toHHMM(result.lastDrinkAt)} · bare en tommelfingerregel`
+              ? `Siste slurk kl. ${toHHMM(result.lastDrinkAt)} · bare en tommelfingerregel`
               : 'Bare en tommelfingerregel'
           }
           className="sm:col-span-2"
