@@ -1,0 +1,98 @@
+name: 🍷 Test, bygg og publiser
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, test og bygg
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: 📥 Sjekk ut
+        uses: actions/checkout@v7
+
+      - name: 🟢 Sett opp Node
+        uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - name: 📦 Installer avhengigheter
+        run: npm ci
+
+      - name: 🧹 Formatering
+        run: npm run format:check
+
+      - name: 🔍 Lint
+        run: npm run lint
+
+      - name: 🧪 Tester
+        run: npm test
+
+      - name: 🏗️ Bygg
+        run: npm run build
+
+      - name: 📤 Last opp bygg
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  # Ferdige filer til grenen «build». ranheimkraft.no sitt synk-skript
+  # kloner denne grenen og kopierer filene til promille/.
+  publish-build-branch:
+    name: Publiser til build-grenen
+    needs: check
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: 📥 Hent bygg
+        uses: actions/download-artifact@v8
+        with:
+          name: github-pages
+          path: artifact
+
+      - name: 📦 Pakk ut
+        run: |
+          mkdir dist
+          tar -xf artifact/artifact.tar -C dist
+
+      - name: 🚀 Push til build
+        working-directory: dist
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          git init -q -b build
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -q -m "chore(build): bygg fra ${GITHUB_SHA::7}"
+          git push -f "https://x-access-token:${TOKEN}@github.com/${GITHUB_REPOSITORY}.git" build
+
+  # Forhåndsvisning på ranheimgeriljatv.github.io/Kraft-Promille/
+  deploy-pages:
+    name: Publiser til GitHub Pages
+    needs: check
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: 🌐 Publiser
+        id: deployment
+        uses: actions/deploy-pages@v5

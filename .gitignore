@@ -1,0 +1,73 @@
+# =========================================================================
+# Hemmeligheter og API-nøkler (aldri commit til GitHub!)
+# =========================================================================
+.env
+.env.*
+!.env.example
+*.secret
+*.key
+*.pem
+*.p12
+*.pfx
+*.cert
+*.crt
+secrets/
+credentials*.json
+client_secret*.json
+service_account*.json
+token.json
+config.local.js
+local.properties
+
+# =========================================================================
+# Avhengigheter
+# =========================================================================
+node_modules/
+.pnpm-store/
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# =========================================================================
+# Bygg og cache
+# =========================================================================
+dist/
+dist-ssr/
+build/
+coverage/
+.vite/
+*.tsbuildinfo
+.eslintcache
+.pytest_cache/
+
+# =========================================================================
+# Logger og midlertidige filer
+# =========================================================================
+logs/
+*.log
+npm-debug.log*
+*.tmp
+*.bak
+scratch/
+tmp/
+temp/
+
+# =========================================================================
+# Editor og OS
+# =========================================================================
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# =========================================================================
+# Lokale Claude-innstillinger
+# =========================================================================
+.claude/settings.local.json
