@@ -28,10 +28,12 @@ export function Disclaimer({ className = '' }) {
           kalkulatoren som fasit for bilkjøring.
         </p>
         <p className="text-xs text-orange-100/90">
-          <strong className="font-bold text-white">Ansvarsfraskrivelse:</strong> Ranheim Kraft tar
-          ikke ansvar for bruken av kalkulatoren eller for beslutninger du tar ut fra den. Du bruker
-          den på eget ansvar. Det er juridisk umulig å skylde på kalkulatoren: ansvaret for å være
-          edru bak rattet er alltid ditt.
+          <strong className="font-bold text-white">Ansvarsfraskrivelse:</strong> Denne tjenesten er
+          kun ment som et uforpliktende og teoretisk hjelpemiddel. Ranheim Kraft garanterer ikke for
+          nøyaktigheten av beregningene og kan under ingen omstendigheter holdes erstatningsrettslig
+          eller juridisk ansvarlig for tap, skade eller straffereaksjoner som følge av bruken. Etter
+          vegtrafikkloven § 22 har enhver bilfører et selvstendig og ufravikelig ansvar for å
+          forsikre seg om at man ikke er påvirket av alkohol under kjøring.
         </p>
       </div>
     </aside>

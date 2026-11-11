@@ -1,6 +1,6 @@
 {
   "name": "kraft-promille",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "description": "Promille- og forbrenningskalkulator for ranheimkraft.no",
   "type": "module",
