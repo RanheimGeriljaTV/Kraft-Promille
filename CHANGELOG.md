@@ -7,6 +7,12 @@ og prosjektet følger [Semantic Versioning](https://semver.org/lang/no/).
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-11-11
+
+### Endret
+
+- Personvern-banneret sier nå «Alt du skriver inn, lagres kun lokalt på din egen mobil/PC. Ingenting av det sendes over nett.» Den gamle teksten («Ingen data sendes over nett») stemte ikke helt på ranheimkraft.no, der Umami teller sidevisninger.
+
 ## [0.1.0] - 2026-11-11
 
 ### Lagt til
@@ -25,5 +31,6 @@ og prosjektet følger [Semantic Versioning](https://semver.org/lang/no/).
 - Tester med Vitest for regnemodell, klokkeslett, appen, lagring, tilgjengelighet (axe) og SEO.
 - Workflow som tester, bygger, publiserer forhåndsvisning på GitHub Pages og pusher bygget til grenen `build`.
 
-[Unreleased]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.1...HEAD
+[0.1.1]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.0...v0.1.1
 [0.1.0]: https://github.com/RanheimGeriljaTV/Kraft-Promille/releases/tag/v0.1.0

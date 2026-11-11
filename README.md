@@ -4,7 +4,7 @@
 
 Regner ut omtrent hvor høy promillen er nå, når den er under 0,2 og når den er helt nede på 0,00, med norske drikke-enheter. Alt regnes ut i nettleseren, og økten lagres bare lokalt (`localStorage`), slik at du kan lukke siden på fest og åpne den igjen senere på kvelden eller morgenen etter.
 
-> **Status:** v0.1.0. Skal ligge på **https://ranheimkraft.no/promille/** (nettsiden henter nye versjoner innen 3 timer etter at den er koblet på).
+> **Status:** v0.1.1. Skal ligge på **https://ranheimkraft.no/promille/** (nettsiden henter nye versjoner innen 3 timer etter at den er koblet på).
 >
 > **Forhåndsvisning:** https://ranheimgeriljatv.github.io/Kraft-Promille/
 
@@ -80,7 +80,7 @@ Tallene er anslag. Leverfunksjon, dagsform, medisiner og mat gjør at den faktis
 
 - Kalkulatoren gjør ingen API-kall. Fontene (Syne, Plus Jakarta Sans og JetBrains Mono) ligger i bygget via `@fontsource`, så siden henter ingenting fra Google.
 - Profil, valgt styrke, modus og kveldens drikkeliste lagres i `localStorage` under nøkkelen `kraft-promille:v1`. Lagret data valideres når siden åpnes, og appen virker også når lagring er blokkert.
-- **NB:** På ranheimkraft.no legger synk-skriptet inn Umami, som teller sidevisninger (uten informasjonskapsler og uten det du skriver inn). Banneret «Ingen data sendes over nett» gjelder det du legger inn i kalkulatoren.
+- **NB:** På ranheimkraft.no legger synk-skriptet inn Umami, som teller sidevisninger (uten informasjonskapsler og uten det du skriver inn). Derfor sier banneret at det du skriver inn, ikke sendes over nett, og ikke at siden ikke sender noe i det hele tatt.
 
 ## Utvikling
 

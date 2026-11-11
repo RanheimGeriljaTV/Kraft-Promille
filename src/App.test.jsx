@@ -33,7 +33,7 @@ describe('Kraft Promille', () => {
   it('viser personvern-banner og ansvarsfraskrivelse', () => {
     render(<App />);
     expect(screen.getByText(/100 % Privat:/).parentElement).toHaveTextContent(
-      '100 % Privat: Alt lagres kun lokalt på din egen mobil/PC. Ingen data sendes over nett.',
+      '100 % Privat: Alt du skriver inn, lagres kun lokalt på din egen mobil/PC. Ingenting av det sendes over nett.',
     );
     expect(screen.getByRole('complementary', { name: 'Ansvarsfraskrivelse' })).toHaveTextContent(
       'Kun et matematisk estimat. Individuelle forskjeller i leverfunksjon, dagsform og medisiner påvirker forbrenningen. Ikke bruk kalkulatoren som fasit for bilkjøring.',

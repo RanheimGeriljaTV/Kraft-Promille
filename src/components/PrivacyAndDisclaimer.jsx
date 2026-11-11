@@ -6,8 +6,8 @@ export function PrivacyBanner() {
     <p className="flex items-start gap-2.5 rounded-2xl border border-emerald-400/30 bg-emerald-400/[0.07] p-3 text-sm leading-snug text-emerald-100">
       <Lock aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-emerald-300" />
       <span>
-        <strong className="font-bold text-white">100 % Privat:</strong> Alt lagres kun lokalt på din
-        egen mobil/PC. Ingen data sendes over nett.
+        <strong className="font-bold text-white">100 % Privat:</strong> Alt du skriver inn, lagres
+        kun lokalt på din egen mobil/PC. Ingenting av det sendes over nett.
       </span>
     </p>
   );
