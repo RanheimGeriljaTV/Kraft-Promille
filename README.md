@@ -4,7 +4,7 @@
 
 Regner ut omtrent hvor høy promillen er nå, når den er under 0,2 og når den er helt nede på 0,00, med norske drikke-enheter. Alt regnes ut i nettleseren, og økten lagres bare lokalt (`localStorage`), slik at du kan lukke siden på fest og åpne den igjen senere på kvelden eller morgenen etter.
 
-> **Status:** v0.1.4. Skal ligge på **https://ranheimkraft.no/promille/** (nettsiden henter nye versjoner innen 3 timer etter at den er koblet på).
+> **Status:** v0.2.0. Skal ligge på **https://ranheimkraft.no/promille/** (nettsiden henter nye versjoner innen 3 timer etter at den er koblet på).
 >
 > **Forhåndsvisning:** https://ranheimgeriljatv.github.io/Kraft-Promille/
 
@@ -75,6 +75,12 @@ Ligger i [`src/utils/bacCalculator.js`](src/utils/bacCalculator.js) og er testet
 5. **Forbrenning fra første slurk**, så lenge promillen er over 0. Kurven simuleres minutt for minutt og samples hvert 15. minutt til grafen. To kurver regnes ut parallelt: normal (0,15 ‰/t) og konservativ (0,10 ‰/t, minst 60 min opptak).
 
 Tallene er anslag. Leverfunksjon, dagsform, medisiner og mat gjør at den faktiske promillen kan avvike mye.
+
+## Ansvarsfraskrivelse og vilkår
+
+Den oransje boksen øverst har en kort ansvarsfraskrivelse og en lenke («Les fullstendige vilkår og ansvarsfraskrivelse») til de fullstendige vilkårene nederst i «Spørsmål og svar» (`#vilkar`). Vilkårene (formål og begrensninger, førerens lovansvar, fraskrivelse av erstatnings- og rettsansvar, aksept) ligger i [`src/data/terms.js`](src/data/terms.js). De er ikke med i FAQPage-dataene, siden de er for lange til å være et spørsmål med svar.
+
+Teksten er ikke vurdert av en jurist.
 
 ## Personvern og lagring
 

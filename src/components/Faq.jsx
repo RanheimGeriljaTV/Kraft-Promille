@@ -1,7 +1,40 @@
 import { FAQ } from '../data/faq';
+import { TERMS, TERMS_TITLE } from '../data/terms';
 import { SectionLabel } from './ui';
 
-/** «Spørsmål og svar»: forklarende tekst som søkemotorer og folk trenger. */
+/** Fullstendige vilkår og ansvarsfraskrivelse. Den oransje boksen øverst lenker hit (#vilkar). */
+function Terms() {
+  return (
+    <article
+      id="vilkar"
+      aria-labelledby="vilkar-title"
+      className="scroll-mt-4 space-y-4 rounded-2xl border border-orange-400/30 bg-orange-400/[0.05] p-4"
+    >
+      <h3 id="vilkar-title" className="font-syne text-base font-bold text-white">
+        {TERMS_TITLE}
+      </h3>
+      {TERMS.map((part) => (
+        <section key={part.title} className="space-y-2">
+          <h4 className="text-sm font-bold text-white">{part.title}</h4>
+          {part.paragraphs.map((text) => (
+            <p key={text} className="text-sm leading-relaxed text-zinc-300">
+              {text}
+            </p>
+          ))}
+          {part.bullets && (
+            <ul className="list-disc space-y-1 pl-5 text-sm leading-relaxed text-zinc-300">
+              {part.bullets.map((text) => (
+                <li key={text}>{text}</li>
+              ))}
+            </ul>
+          )}
+        </section>
+      ))}
+    </article>
+  );
+}
+
+/** «Spørsmål og svar»: forklarende tekst som søkemotorer og folk trenger, med vilkårene nederst. */
 export default function Faq() {
   return (
     <section aria-labelledby="faq-title" className="space-y-3">
@@ -22,6 +55,7 @@ export default function Faq() {
           </details>
         ))}
       </div>
+      <Terms />
     </section>
   );
 }

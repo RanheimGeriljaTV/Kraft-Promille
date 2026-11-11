@@ -35,6 +35,12 @@ export function Disclaimer({ className = '' }) {
           vegtrafikkloven § 22 har enhver bilfører et selvstendig og ufravikelig ansvar for å
           forsikre seg om at man ikke er påvirket av alkohol under kjøring.
         </p>
+        <a
+          href="#vilkar"
+          className="inline-flex min-h-11 items-center text-xs font-bold text-orange-200 underline underline-offset-2 hover:text-white"
+        >
+          Les fullstendige vilkår og ansvarsfraskrivelse
+        </a>
       </div>
     </aside>
   );

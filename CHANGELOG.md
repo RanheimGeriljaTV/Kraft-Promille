@@ -7,6 +7,16 @@ og prosjektet følger [Semantic Versioning](https://semver.org/lang/no/).
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-11-11
+
+### Lagt til
+
+- Fullstendig ansvarsfraskrivelse og vilkår for bruk nederst i «Spørsmål og svar», med lenke fra den oransje boksen øverst.
+
+### Endret
+
+- Svarene om hvordan promillen regnes ut, hvor lenge det tar å bli edru og når man kan kjøre bil, er skrevet om i tråd med vilkårene: grovt teoretisk estimat, og bare blodprøve eller politiets instrument gjelder.
+
 ## [0.1.4] - 2026-11-11
 
 ### Endret
@@ -51,7 +61,8 @@ og prosjektet følger [Semantic Versioning](https://semver.org/lang/no/).
 - Tester med Vitest for regnemodell, klokkeslett, appen, lagring, tilgjengelighet (axe) og SEO.
 - Workflow som tester, bygger, publiserer forhåndsvisning på GitHub Pages og pusher bygget til grenen `build`.
 
-[Unreleased]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.4...HEAD
+[Unreleased]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.4...v0.2.0
 [0.1.4]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.3...v0.1.4
 [0.1.3]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.2...v0.1.3
 [0.1.2]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.1...v0.1.2

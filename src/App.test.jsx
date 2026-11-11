@@ -133,6 +133,31 @@ describe('Kraft Promille', () => {
   });
 });
 
+describe('Vilkår og ansvarsfraskrivelse', () => {
+  it('lenker fra den oransje boksen til de fullstendige vilkårene i «Spørsmål og svar»', () => {
+    render(<App />);
+    const link = screen.getByRole('link', {
+      name: 'Les fullstendige vilkår og ansvarsfraskrivelse',
+    });
+    expect(link).toHaveAttribute('href', '#vilkar');
+    const terms = document.getElementById('vilkar');
+    expect(terms).toBeInTheDocument();
+    expect(terms.closest('section')).toHaveAccessibleName('Spørsmål og svar');
+    expect(
+      within(terms)
+        .getAllByRole('heading', { level: 4 })
+        .map((h) => h.textContent),
+    ).toEqual([
+      '1. Tjenestens formål og tekniske begrensninger',
+      '2. Førerens selvstendige og ufravikelige lovansvar',
+      '3. Fullstendig fraskrivelse av erstatnings- og rettsansvar',
+      '4. Aksept av vilkår',
+    ]);
+    expect(within(terms).getAllByRole('listitem')).toHaveLength(5);
+    expect(terms).toHaveTextContent('Under ingen omstendigheter kan Ranheim Kraft');
+  });
+});
+
 describe('restoreState', () => {
   it('retter opp ugyldige og manglende verdier', () => {
     const state = restoreState(
