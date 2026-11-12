@@ -3,13 +3,16 @@ import { Lock, TriangleAlert } from 'lucide-react';
 /** Personvern-banner øverst på siden. */
 export function PrivacyBanner() {
   return (
-    <p className="flex items-center gap-1.5 font-mono text-[11px] leading-snug text-emerald-300">
+    <aside
+      aria-label="Personvern"
+      className="flex items-center gap-1.5 font-mono text-[11px] leading-snug text-emerald-300"
+    >
       <Lock aria-hidden="true" className="size-3 shrink-0" />
       <span>
         <strong className="font-bold">100 % privat:</strong> det du skriver inn, lagres bare på
         enheten din.
       </span>
-    </p>
+    </aside>
   );
 }
 

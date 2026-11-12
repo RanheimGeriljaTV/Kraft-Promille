@@ -10,7 +10,8 @@ export default function MobileStatusBar({ result, now }) {
   const style = LEVEL_STYLE[level(result.now)];
 
   return (
-    <div
+    <aside
+      aria-label="Promille nå og forsiktig anslag"
       data-testid="mobile-bar"
       className="fixed inset-x-0 bottom-0 z-20 border-t border-white/10 bg-brand-navy/95 shadow-[0_-12px_30px_rgba(0,0,0,0.5)] backdrop-blur-md lg:hidden"
       style={{
@@ -30,12 +31,12 @@ export default function MobileStatusBar({ result, now }) {
               vilkår
             </a>
           </p>
-          <p
+          <div
             className={`font-syne text-3xl leading-none font-black tracking-tighter tabular-nums ${hasDrinks ? style.text : 'text-white'}`}
           >
             {formatPromille(result.now)}
             <span className="ml-1 text-base text-zinc-400">‰</span>
-          </p>
+          </div>
         </div>
         <div className="text-right">
           <p className="flex items-center justify-end gap-1 font-mono text-[10px] tracking-wide text-emerald-300 uppercase">
@@ -54,6 +55,6 @@ export default function MobileStatusBar({ result, now }) {
           )}
         </div>
       </div>
-    </div>
+    </aside>
   );
 }

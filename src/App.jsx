@@ -108,11 +108,10 @@ export default function App() {
       <Header />
       <PrivacyAndDisclaimer />
 
-      <p aria-live="polite" aria-atomic="true" className="sr-only" data-testid="announcement">
-        {announcement}
-      </p>
-
       <main className="grid flex-1 grid-cols-1 gap-6 lg:grid-cols-12">
+        <p aria-live="polite" aria-atomic="true" className="sr-only" data-testid="announcement">
+          {announcement}
+        </p>
         <div className="min-w-0 space-y-4 lg:col-span-5">
           <ProfileInput
             index={1}

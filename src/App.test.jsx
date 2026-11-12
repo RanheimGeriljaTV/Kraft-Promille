@@ -1,6 +1,7 @@
 import axe from 'axe-core';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import App from './App';
+import { DRINKS } from './data/drinks';
 import { restoreState } from './utils/restoreState';
 import { STORAGE_KEY } from './utils/storage';
 
@@ -8,9 +9,22 @@ const at = (d, h, m) => new Date(2026, 10, d, h, m).getTime();
 
 async function expectNoViolations(container) {
   const results = await axe.run(container, {
-    runOnly: { type: 'tag', values: ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'best-practice'] },
+    // Også de eksperimentelle reglene og `region` (alt innhold i landemerker). jsdom har ikke
+    // layout, så axe finner ikke label-content-name-mismatch her: den testes direkte under.
+    runOnly: {
+      type: 'tag',
+      values: [
+        'wcag2a',
+        'wcag2aa',
+        'wcag21a',
+        'wcag21aa',
+        'wcag22aa',
+        'best-practice',
+        'experimental',
+      ],
+    },
     // Fargekontrast kan ikke måles i jsdom (ingen ekte CSS).
-    rules: { 'color-contrast': { enabled: false }, region: { enabled: false } },
+    rules: { 'color-contrast': { enabled: false } },
   });
   const summary = results.violations.map(
     (v) => `${v.id}: ${v.help} (${v.nodes.map((n) => n.target.join(' ')).join(', ')})`,
@@ -200,6 +214,45 @@ describe('Drikketid og «Ferdig»', () => {
     act(() => vi.advanceTimersByTime(2 * 60 * 60 * 1000 + 60 * 1000));
     expect(screen.queryByRole('button', { name: /^Ferdig med/ })).not.toBeInTheDocument();
     expect(screen.getByText('i går · Antatt drukket over 40 min')).toBeInTheDocument();
+  });
+});
+
+describe('Knappenavn (WCAG 2.5.3, talestyring)', () => {
+  it('har synlig tekst i navnet på «Legg til»-knappene', () => {
+    render(<App />);
+    for (const { name, hint } of DRINKS) {
+      // Navnet skal begynne med «Legg til», og inneholde det som står på knappen.
+      const button = screen.getByRole('button', {
+        name: (accessibleName) =>
+          accessibleName.startsWith(`Legg til ${name}`) && accessibleName.includes(hint),
+      });
+      expect(button).toBeInTheDocument();
+    }
+  });
+
+  it('sier styrken og størrelsen i navnet, og har ingen aria-label som overstyrer teksten', () => {
+    render(<App />);
+    const button = screen.getByRole('button', { name: /^Legg til Glass vin/ });
+    expect(button).not.toHaveAttribute('aria-label');
+    expect(button).toHaveAccessibleName(/\(1,5 dl, 13,5 %\)$/);
+  });
+});
+
+describe('Landemerker og overskrifter', () => {
+  it('legger personvernlinjen og den faste linjen på mobil i landemerker', () => {
+    render(<App />);
+    expect(screen.getByRole('complementary', { name: 'Personvern' })).toHaveTextContent(
+      '100 % privat',
+    );
+    expect(
+      screen.getByRole('complementary', { name: 'Promille nå og forsiktig anslag' }),
+    ).toBeInTheDocument();
+  });
+
+  it('bruker ikke et avsnitt (p) som overskrift for det store promilletallet', () => {
+    render(<App />);
+    expect(screen.getByTestId('promille-now').tagName).toBe('DIV');
+    expect(screen.getByTestId('mobile-bar').querySelector('p.text-3xl')).toBeNull();
   });
 });
 

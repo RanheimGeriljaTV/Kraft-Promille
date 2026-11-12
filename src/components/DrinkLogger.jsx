@@ -44,9 +44,10 @@ function DrinkTile({ drink, choice, mode, count, onChoice, onAdd, onCount }) {
         <button
           type="button"
           onClick={onAdd}
-          aria-label={`Legg til ${what}`}
           className="group relative flex min-h-24 touch-manipulation flex-col items-start justify-between gap-1 rounded-xl bg-white/[0.04] p-2.5 text-left transition select-none hover:bg-white/[0.07] active:scale-[0.97] active:bg-accent active:text-black"
         >
+          {/* Navnet kommer fra innholdet (WCAG 2.5.3): «Legg til» og styrken er skjult tekst. */}
+          <span className="sr-only">Legg til</span>{' '}
           <span className="flex w-full items-center justify-between">
             <Icon aria-hidden="true" className="size-6 text-accent group-active:text-black" />
             <span className="flex size-8 items-center justify-center rounded-full bg-accent text-black">
@@ -56,9 +57,14 @@ function DrinkTile({ drink, choice, mode, count, onChoice, onAdd, onCount }) {
           <span>
             <span id={nameId} className="block text-sm leading-tight font-bold">
               {drink.name}
-            </span>
+            </span>{' '}
             <span className="block font-mono text-[10px] text-zinc-400 group-active:text-black/70">
               {drink.hint}
+            </span>
+            <span className="sr-only">
+              {' '}
+              ({drink.volumes.length > 1 ? `${volumeLabel}, ` : ''}
+              {abvLabel})
             </span>
           </span>
           {count > 0 && (

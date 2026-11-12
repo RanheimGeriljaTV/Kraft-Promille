@@ -7,6 +7,27 @@ og prosjektet følger [Semantic Versioning](https://semver.org/lang/no/).
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-11-12
+
+Tilgjengelighet og småting fra QA-runden (issue #2) og kodegjennomgangen (issue #1). Med denne er alle funn rettet, bortsett fra L5 og L6 (se under).
+
+### Rettet
+
+- Knappene «Legg til …» hadde en `aria-label` som overstyrte teksten på knappen (WCAG 2.5.3, talestyring). Navnet kommer nå fra innholdet, med «Legg til» og styrken som skjult tekst (#1 M5, #2).
+- Den faste linjen nederst på mobil og personvernlinjen ligger nå i landemerker (`aside`), og meldingen til skjermlesere ligger i `main` (axe `region`).
+- Det store promilletallet er en `div` og ikke et avsnitt (`p`) som ser ut som en overskrift (axe `p-as-heading`).
+- «GitHub»-lenken i bunnteksten var 43 px bred og er nå minst 48 × 48 px (#1 L4).
+- Lenken «vilkår» i den faste linjen på mobil har en trykkflate på minst 44 px.
+
+### Endret
+
+- Axe-testene kjører nå også de eksperimentelle reglene og `region`. Siden jsdom ikke har layout, finner ikke axe label-content-name-mismatch der, så kravet testes direkte (navnet må inneholde teksten på knappen, og det skal ikke være noen `aria-label` som overstyrer den).
+
+### Ikke endret
+
+- **L5** (GitHub Actions låst på tag, ikke SHA): lav risiko, utsatt.
+- **L6** (`npm audit`: 4 moderate funn i dev-verktøy via `eslint@10`): påvirker ikke den publiserte siden. `npm audit --omit=dev` gir 0.
+
 ## [0.4.0] - 2026-11-12
 
 Modell og ordbruk etter kodegjennomgangen og QA-runden (issues #1 og #2).
@@ -112,7 +133,8 @@ Retter feil fra kodegjennomgangen og QA-runden (issues #1 og #2) som kunne gi et
 - Tester med Vitest for regnemodell, klokkeslett, appen, lagring, tilgjengelighet (axe) og SEO.
 - Workflow som tester, bygger, publiserer forhåndsvisning på GitHub Pages og pusher bygget til grenen `build`.
 
-[Unreleased]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.2.0...v0.3.0

@@ -313,13 +313,13 @@ export default function ResultDashboard({ index, result, now }) {
       <div className="grid gap-3 sm:grid-cols-2">
         <Card icon={Activity} title="Estimert promille nå" className="sm:col-span-2">
           <div className="flex flex-wrap items-end gap-x-5 gap-y-2">
-            <p
+            <div
               data-testid="promille-now"
               className={`font-syne text-6xl leading-none font-black tracking-tighter tabular-nums ${hasDrinks ? style.text : 'text-white'}`}
             >
               {formatPromille(promille)}
               <span className="ml-1 text-2xl text-zinc-400">‰</span>
-            </p>
+            </div>
             <p className="min-w-0 flex-1 basis-48 text-sm leading-snug text-zinc-300">
               {effectOf(promille)}
             </p>
