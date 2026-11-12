@@ -7,6 +7,10 @@ og prosjektet følger [Semantic Versioning](https://semver.org/lang/no/).
 
 ## [Unreleased]
 
+### Rettet
+
+- «Sikker sone» var ikke så forsiktig som den lover: den konservative kurven trakk fra 10 % resorpsjonstap og brukte Watson uten øvre grense. Med fire halvlitere kom den ca. 1,5 time før Widmark med 0,10 ‰/t for en snittmann, ca. 5 timer før for slanke, høye menn og små kvinner, og over 10 timer før ved ytterpunkter. Nå trekker den sikre kurven ikke fra noe tap, og Widmark-faktoren r er maks 0,70 for menn og 0,60 for kvinner. Den typiske kurven er uendret.
+
 ## [0.3.0] - 2026-11-11
 
 ### Lagt til

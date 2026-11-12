@@ -59,7 +59,7 @@ Enhetene ligger i [`src/data/drinks.js`](src/data/drinks.js).
 
 1. **Estimert promille nå** med typisk påvirkning og toppunktet i kveld.
 2. **Bilkjøring: 0,00 ‰ og 0,2 ‰-grensen** med normal forbrenning (0,15 ‰/t). Kortet forklarer at du kan straffes også under 0,2 ‰ hvis du er påvirket (vurderes etter skjønn og oppførsel), og at bare 0,00 ‰ er trygt.
-3. **Grønt lys / Sikker sone** med konservativ forbrenning (0,10 ‰/t) og full opptakstid (60 min). Uthevet som det tryggeste valget.
+3. **Grønt lys / Sikker sone** med konservativ forbrenning (0,10 ‰/t), full opptakstid (60 min), ingen resorpsjonstap og en øvre grense for Widmark-faktoren (r ≤ 0,70 for menn og 0,60 for kvinner, se regnemodellen). Uthevet som det tryggeste valget.
 4. **12-timersregelen** – 12 timer etter siste enhet, sammenlignet med sikker sone, med en advarsel om at regelen ikke er til å stole på (tiden avhenger av mengde, styrke og hvor tett man drikker).
 5. **Time for time**: graf over begge kurvene og tabell fra første enhet til begge er på 0,00, med fargekoder: rød (> 0,5), oransje (0,2–0,5), gul (0,01–0,19) og grønn (0,00 på begge).
 
@@ -73,9 +73,10 @@ Ligger i [`src/utils/bacCalculator.js`](src/utils/bacCalculator.js) og er testet
    - Mann: `TBW = 2,447 − 0,09156 × alder + 0,1074 × høyde + 0,3362 × vekt`
    - Kvinne: `TBW = −2,097 + 0,1069 × høyde + 0,2466 × vekt` (bruker ikke alder)
 2. **Gram alkohol per enhet** med 10 % resorpsjonstap: `volum i dl × prosent × 0,789 × 0,90`.
-3. **Promille** = `gram × 0,8 / TBW`. Alkoholen fordeler seg i kroppsvæsken, og blod er ca. 80 % vann. For en mann på 80 kg, 180 cm og 30 år gir dette omtrent det samme som Widmark med r = 0,7.
+3. **Promille** = `gram × 0,8 / TBW`. Alkoholen fordeler seg i kroppsvæsken, og blod er ca. 80 % vann. Det tilsvarer Widmark med `r = TBW / (0,8 × vekt)`. For en mann på 80 kg, 180 cm og 30 år er r = 0,72, og med resorpsjonstapet blir toppen ca. 12 % lavere enn Widmark med r = 0,7.
 4. **Drikketid og gradvis opptak:** hver enhet drikkes jevnt over drikketiden (porsjoner à ca. 5 min), og hver porsjon tas opp lineært over 30 min (tom mage) eller 60 min (mat).
 5. **Forbrenning fra første slurk**, så lenge promillen er over 0. Kurven simuleres minutt for minutt og samples hvert 15. minutt til grafen. To kurver regnes ut parallelt: normal (0,15 ‰/t) og konservativ (0,10 ‰/t, minst 60 min opptak).
+6. **Den konservative kurven** («Sikker sone») trekker ikke fra resorpsjonstapet, og r kan ikke bli høyere enn 0,70 for menn og 0,60 for kvinner (den norske tommelfingerregelen for Widmark). Uten taket gir Watson r opp mot 1,15 for slanke, høye personer, og da blir promillen altfor lav. Tunge personer beholder Watson, som gir lavere r og høyere promille. «Sikker sone» kommer dermed ikke før Widmark med 0,10 ‰/t. Kildene står i `SAFE_MAX_R` i [`bacCalculator.js`](src/utils/bacCalculator.js).
 
 Tallene er anslag. Leverfunksjon, dagsform, medisiner og mat gjør at den faktiske promillen kan avvike mye.
 
