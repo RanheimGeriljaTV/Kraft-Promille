@@ -4,7 +4,7 @@ import App from './App';
 import { restoreState } from './utils/restoreState';
 import { STORAGE_KEY } from './utils/storage';
 
-const at = (d, h, m) => new Date(2026, 10, d, h, m).getTime();
+const at = (d, h, m, s = 0) => new Date(2026, 10, d, h, m, s).getTime();
 
 async function expectNoViolations(container) {
   const results = await axe.run(container, {
@@ -198,6 +198,90 @@ describe('Drikketid og «Ferdig»', () => {
     act(() => vi.advanceTimersByTime(2 * 60 * 60 * 1000 + 60 * 1000));
     expect(screen.queryByRole('button', { name: /^Ferdig med/ })).not.toBeInTheDocument();
     expect(screen.getByText('Antatt drukket over 40 min')).toBeInTheDocument();
+  });
+});
+
+describe('Oppsummering neste kveld (CR H1 / QA Q1)', () => {
+  const beer = () => screen.getByRole('button', { name: 'Én til: Øl 0,5 l (4,7 %)' });
+  const fields = () => [
+    screen.getByLabelText('Startet å drikke kl.').value,
+    screen.getByLabelText('Sluttet å drikke kl.').value,
+  ];
+  /** Fredag: oppsummering 19:00–01:30 med 2 halvlitere. */
+  function friday() {
+    fireEvent.click(screen.getByRole('radio', { name: /Oppsummer i etterkant/ }));
+    fireEvent.change(screen.getByLabelText('Startet å drikke kl.'), { target: { value: '19:00' } });
+    fireEvent.change(screen.getByLabelText('Sluttet å drikke kl.'), { target: { value: '01:30' } });
+    fireEvent.click(beer());
+    fireEvent.click(beer());
+  }
+  /** Fire halvlitere i kveld skal gi tydelig promille nå, og sikker sone skal ikke være nådd. */
+  function expectTonight() {
+    const now = Number(promilleNow().replace('‰', '').replace(',', '.'));
+    expect(now).toBeGreaterThan(0.25);
+    expect(screen.getByTestId('safe-sober')).not.toHaveTextContent('nådd');
+    expect(screen.getByTestId('safe-sober')).toHaveTextContent(/kl\. 06:40\s*i morgen/);
+    expect(screen.getByTestId('mobile-bar')).not.toHaveTextContent('Nådd');
+    expect(saved().summary.startTs).toBe(at(14, 19, 0));
+  }
+
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'Date'] });
+    vi.setSystemTime(at(13, 23, 0));
+  });
+  afterEach(() => vi.useRealTimers());
+
+  it('«Start ny kveld» neste dag legger nye enheter på i kveld, ikke på gårsdagen', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    render(<App />);
+    friday();
+
+    // Lørdag 23:00, samme fane: «Start ny kveld» og 4 halvlitere.
+    vi.setSystemTime(at(14, 22, 59, 30));
+    act(() => vi.advanceTimersByTime(30 * 1000));
+    fireEvent.click(screen.getByRole('button', { name: 'Start ny kveld / Tøm liste' }));
+    for (let i = 0; i < 4; i++) fireEvent.click(beer());
+
+    expectTonight();
+    expect(fields()).toEqual(['19:00', '23:00']);
+    expect(saved().summary.counts).toEqual({ 'beer-05': 4 });
+  });
+
+  it('åpner siden neste kveld med en ny, tom kveld', () => {
+    const { unmount } = render(<App />);
+    friday();
+    unmount();
+
+    vi.setSystemTime(at(14, 23, 0));
+    render(<App />);
+    expect(fields()).toEqual(['19:00', '23:00']);
+    expect(screen.getByRole('button', { name: 'Start ny kveld / Tøm liste' })).toBeDisabled();
+    for (let i = 0; i < 4; i++) fireEvent.click(beer());
+    expect(saved().summary.counts).toEqual({ 'beer-05': 4 });
+    expectTonight();
+  });
+
+  it('teller ikke gårsdagens enheter med når fanen har stått åpen siden i går', () => {
+    render(<App />);
+    friday();
+    vi.setSystemTime(at(14, 22, 59, 30));
+    act(() => vi.advanceTimersByTime(30 * 1000));
+    // Gårsdagens 2 vises ikke lenger, så første trykk gir 1, ikke 3.
+    fireEvent.click(beer());
+    expect(saved().summary.counts).toEqual({ 'beer-05': 1 });
+    expect(saved().summary.startTs).toBe(at(14, 19, 0));
+  });
+
+  it('beholder gårsdagens oppsummering morgenen etter', () => {
+    const { unmount } = render(<App />);
+    friday();
+    const before = saved().summary;
+    unmount();
+
+    vi.setSystemTime(at(14, 10, 0));
+    render(<App />);
+    expect(fields()).toEqual(['19:00', '01:30']);
+    expect(saved().summary).toEqual(before);
   });
 });
 

@@ -1,16 +1,11 @@
 import { DEFAULT_PROFILE, PROFILE_LIMITS } from '../data/profile';
 import { DRINKS, MAX_PER_DRINK, defaultChoice, findDrink } from '../data/drinks';
-import { firstAtOrAfter, latestAtOrBefore } from './time';
+import { currentSummary, newEvening } from './evening';
 
 const isNum = (v) => typeof v === 'number' && Number.isFinite(v);
 const inRange = (v, { min, max }) => isNum(v) && v >= min && v <= max;
 export const newId = () =>
   globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-
-function defaultSummary(now) {
-  const startTs = latestAtOrBefore(now, '19:00');
-  return { startTs, endTs: firstAtOrAfter(startTs, '01:30'), counts: {} };
-}
 
 /** Leser lagret økt og retter opp alt som mangler eller er ugyldig. */
 export function restoreState(saved, now) {
@@ -55,16 +50,19 @@ export function restoreState(saved, now) {
   const s = saved?.summary;
   const summary =
     s && isNum(s.startTs) && isNum(s.endTs) && s.endTs >= s.startTs
-      ? {
-          startTs: s.startTs,
-          endTs: s.endTs,
-          counts: Object.fromEntries(
-            Object.entries(s.counts ?? {}).filter(
-              ([id, n]) => findDrink(id) && isNum(n) && n > 0 && n <= MAX_PER_DRINK,
+      ? currentSummary(
+          {
+            startTs: s.startTs,
+            endTs: s.endTs,
+            counts: Object.fromEntries(
+              Object.entries(s.counts ?? {}).filter(
+                ([id, n]) => findDrink(id) && isNum(n) && n > 0 && n <= MAX_PER_DRINK,
+              ),
             ),
-          ),
-        }
-      : defaultSummary(now);
+          },
+          now,
+        )
+      : newEvening(now);
 
   return {
     profile,
