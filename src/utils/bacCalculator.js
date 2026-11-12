@@ -10,6 +10,8 @@
  *    tas opp lineært over 30 min (tom mage) eller 60 min (mat).
  * 5. Forbrenningen starter med første slurk og går så lenge promillen er over 0:
  *    0,15 ‰/t (normal) og 0,10 ‰/t (konservativ sikkerhetsmargin).
+ * 6. Den konservative kurven («Sikker sone») trekker ikke fra resorpsjonstapet, og Widmark-faktoren
+ *    r = TBW / (0,8 × vekt) har en øvre grense (se SAFE_MAX_R).
  *
  * Alle tidspunkter er millisekunder (Date.getTime()).
  */
@@ -27,6 +29,21 @@ export const ABSORPTION_MINUTES = { empty: 30, fed: 60 };
 /** Den konservative kurven bruker alltid full opptakstid. */
 export const SAFE_ABSORPTION_MINUTES = 60;
 
+/**
+ * Øvre grense for Widmark-faktoren r på den konservative kurven: 0,70 for menn og 0,60 for kvinner.
+ * Kilde: den norske tommelfingerregelen for Widmark (promille = gram / (vekt × 0,7 / 0,6)), som er
+ * fasiten i kodegjennomgangen (issue #1, H2) og QA-runden (issue #2, Q2). Verdiene ligger i det
+ * vanlige området i litteraturen: Widmarks egne snitt er 0,68 / 0,55 (E.M.P. Widmark, «Principles
+ * and Applications of Medicolegal Alcohol Determination», 1981, s. 107–108, gjengitt i R. Gullberg,
+ * «Widmark's Equation», Washington State Patrol 2002), og Searle (Med Sci Law 2015;55(1):58–64)
+ * viser r 0,66–0,80 for menn og 0,53–0,74 for kvinner etter BMI.
+ * Uten tak gir Watson r opp mot 1,15 for slanke, høye personer (40 kg, 210 cm), altså altfor lav
+ * promille. Lavere r gir høyere promille, så Watson brukes fortsatt når den gir lavere r (tunge
+ * personer). Med taket og uten resorpsjonstap kommer «Sikker sone» ikke før Widmark med 0,10 ‰/t
+ * (testet i bacCalculator.test.js).
+ */
+export const SAFE_MAX_R = { male: 0.7, female: 0.6 };
+
 export const DRIVING_LIMIT = 0.2;
 export const TWELVE_HOURS_MS = 12 * 60 * 60 * 1000;
 
@@ -40,6 +57,15 @@ const MAX_HOURS = 96;
 export function totalBodyWater({ sex, age, heightCm, weightKg }) {
   if (sex === 'female') return -2.097 + 0.1069 * heightCm + 0.2466 * weightKg;
   return 2.447 - 0.09156 * age + 0.1074 * heightCm + 0.3362 * weightKg;
+}
+
+/**
+ * Kroppsvæsken på den konservative kurven: Watson, men aldri mer enn det som gir r = SAFE_MAX_R.
+ * Mer væske gir lavere promille, så taket gjør kurven forsiktigere for slanke og høye personer.
+ */
+export function safeBodyWater(profile) {
+  const maxR = profile.sex === 'female' ? SAFE_MAX_R.female : SAFE_MAX_R.male;
+  return Math.min(totalBodyWater(profile), maxR * BLOOD_WATER * profile.weightKg);
 }
 
 /** Gram ren alkohol som når blodet: volum i dl × prosent × 0,789 × 0,90. */
@@ -155,14 +181,18 @@ export function calculateEvening(profile, drinks, now) {
     burnRate: BURN_NORMAL,
     absorptionMinutes: ABSORPTION_MINUTES[profile.stomach] ?? ABSORPTION_MINUTES.fed,
   });
-  const safe = simulate(drinks, {
-    tbw,
-    burnRate: BURN_SAFE,
-    absorptionMinutes: Math.max(
-      SAFE_ABSORPTION_MINUTES,
-      ABSORPTION_MINUTES[profile.stomach] ?? SAFE_ABSORPTION_MINUTES,
-    ),
-  });
+  // Den konservative kurven regner med at all alkoholen når blodet (ingen resorpsjonstap).
+  const safe = simulate(
+    drinks.map((d) => ({ ...d, grams: d.grams / ABSORBED_SHARE })),
+    {
+      tbw: safeBodyWater(profile),
+      burnRate: BURN_SAFE,
+      absorptionMinutes: Math.max(
+        SAFE_ABSORPTION_MINUTES,
+        ABSORPTION_MINUTES[profile.stomach] ?? SAFE_ABSORPTION_MINUTES,
+      ),
+    },
+  );
   const finished = drinks.filter((d) => d.grams > 0).map((d) => d.ts + (d.durationMs ?? 0));
   const lastDrinkAt = finished.length ? Math.max(...finished) : null;
 
