@@ -10,7 +10,7 @@ import MobileStatusBar from './components/MobileStatusBar';
 import { findDrink, resolveChoice } from './data/drinks';
 import { newId, restoreState } from './utils/restoreState';
 import { calculateEvening } from './utils/bacCalculator';
-import { entriesToDrinks, summaryToDrinks } from './utils/evening';
+import { currentSummary, entriesToDrinks, summaryToDrinks } from './utils/evening';
 import { loadState, saveState } from './utils/storage';
 import {
   firstAtOrAfter,
@@ -26,7 +26,9 @@ import { useAnnouncement } from './hooks/useAnnouncement';
 export default function App() {
   const [state, setState] = useState(() => restoreState(loadState(), Date.now()));
   const now = useNow();
-  const { profile, mode, choices, entries, summary } = state;
+  const { profile, mode, choices, entries } = state;
+  // Gårsdagens oppsummering blir en ny, tom kveld når startklokkeslettet kommer rundt igjen.
+  const summary = useMemo(() => currentSummary(state.summary, now), [state.summary, now]);
 
   useEffect(() => saveState(state), [state]);
 
@@ -70,22 +72,27 @@ export default function App() {
     onRemove: (id) => update((prev) => ({ entries: prev.entries.filter((e) => e.id !== id) })),
     onSummaryTime: (which, text) =>
       update((prev) => {
+        const current = currentSummary(prev.summary, now);
         if (which === 'start') {
           const startTs = latestAtOrBefore(Date.now(), text);
-          const endTs = firstAtOrAfter(startTs, toHHMM(prev.summary.endTs));
-          return { summary: { ...prev.summary, startTs, endTs } };
+          const endTs = firstAtOrAfter(startTs, toHHMM(current.endTs));
+          return { summary: { ...current, startTs, endTs } };
         }
         return {
-          summary: { ...prev.summary, endTs: firstAtOrAfter(prev.summary.startTs, text) },
+          summary: { ...current, endTs: firstAtOrAfter(current.startTs, text) },
         };
       }),
     onCount: (id, n) =>
-      update((prev) => ({
-        summary: { ...prev.summary, counts: { ...prev.summary.counts, [id]: n } },
-      })),
+      update((prev) => {
+        const current = currentSummary(prev.summary, now);
+        return { summary: { ...current, counts: { ...current.counts, [id]: n } } };
+      }),
     onReset: () => {
       if (!window.confirm('Tømme drikkelisten og starte en ny kveld? Profilen beholdes.')) return;
-      update((prev) => ({ entries: [], summary: { ...prev.summary, counts: {} } }));
+      update((prev) => ({
+        entries: [],
+        summary: { ...currentSummary(prev.summary, now), counts: {} },
+      }));
     },
   };
 

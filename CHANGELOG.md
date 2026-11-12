@@ -7,6 +7,10 @@ og prosjektet følger [Semantic Versioning](https://semver.org/lang/no/).
 
 ## [Unreleased]
 
+### Rettet
+
+- «Oppsummer i etterkant» brukte gårsdagens dato neste kveld: start og slutt ble lagret med dato, men vist bare som klokkeslett, og «Start ny kveld» tømte bare antallet. Fire halvlitere kunne da gi 0,00 ‰ og «Sikker sone: Nådd». Nå blir det en ny, tom kveld med samme klokkeslett når startklokkeslettet har kommet rundt igjen, og en ny kveld slutter aldri senere enn nå.
+
 ## [0.3.0] - 2026-11-11
 
 ### Lagt til

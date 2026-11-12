@@ -52,8 +52,9 @@ Enhetene ligger i [`src/data/drinks.js`](src/data/drinks.js).
   - **«Ferdig»-knapp** på hver linje: trykk når du har drukket opp, så brukes den faktiske tiden fra start til nå (minst 1 og maks 180 min). Linjen viser «Drikker nå · antas ferdig kl. …» til standardtiden er gått, og «Drukket over … min» når du har trykket. Knappen vises i to timer etter at enheten ble lagt til. Endrer du startklokkeslettet, beholdes drikketiden.
   - Fordelingen gjør at toppen blir lavere og kommer senere enn om hele enheten var drukket på ett tidspunkt. Siste slurk (og dermed 12-timersregelen) regnes fra slutten av siste drikketid.
 - **Oppsummer i etterkant:** velg «Startet å drikke kl.» og «Sluttet å drikke kl.» og tell opp antallet av hver enhet. Enhetene fordeles jevnt fra start til slutt (første ved start, siste ved slutt), og typene flettes. Starttiden er siste gang klokka var det klokkeslettet, og sluttiden er første gang etter start, så 19:00–01:30 går over midnatt.
+  - **Ny kveld:** Oppsummeringen gjelder én kveld. Morgenen etter vises gårsdagens kveld fortsatt. Når startklokkeslettet har kommet rundt igjen (f.eks. 19:00 neste dag), blir det en ny, tom kveld med samme klokkeslett, også om fanen har stått åpen. En ny kveld (også første gang du åpner siden) slutter aldri senere enn nå, så kl. 23:00 blir 19:00–01:30 til 19:00–23:00.
 
-**Start ny kveld / Tøm liste** tømmer drikkelisten i begge modusene, men beholder profilen.
+**Start ny kveld / Tøm liste** tømmer drikkelisten i begge modusene, men beholder profilen. I oppsummeringen flyttes også start og slutt til kvelden nå hvis de er fra en tidligere dag.
 
 ### Resultat
 

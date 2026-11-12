@@ -1,7 +1,30 @@
 import { findDrink, resolveChoice } from '../data/drinks';
 import { gramsAlcohol } from './bacCalculator';
+import { firstAtOrAfter, latestAtOrBefore, toHHMM } from './time';
 
 const MINUTE = 60 * 1000;
+const HOUR = 60 * MINUTE;
+
+/**
+ * En ny kveld i «Oppsummer i etterkant»: start siste gang klokka var `startText`, og slutt første
+ * gang klokka er `endText` etter det, men aldri senere enn nå. Du oppsummerer i etterkant, så
+ * enhetene skal ikke legges fram i tid.
+ */
+export function newEvening(now, startText = '19:00', endText = '01:30') {
+  const startTs = latestAtOrBefore(now, startText);
+  const endTs = Math.min(firstAtOrAfter(startTs, endText), Math.floor(now / MINUTE) * MINUTE);
+  return { startTs, endTs, counts: {} };
+}
+
+/**
+ * Oppsummeringen som gjelder nå. Har startklokkeslettet kommet rundt igjen (neste dag), er den
+ * lagrede kvelden over: da blir det en ny kveld med samme klokkeslett og ingen enheter, så
+ * gårsdagens tider og antall aldri brukes i kveld. Morgenen etter gjelder gårsdagens kveld fortsatt.
+ */
+export function currentSummary(summary, now) {
+  const stale = latestAtOrBefore(now, toHHMM(summary.startTs)) - summary.startTs > 12 * HOUR;
+  return stale ? newEvening(now, toHHMM(summary.startTs), toHHMM(summary.endTs)) : summary;
+}
 
 /** Drikketid i minutter: den du har markert med «Ferdig», ellers standardtiden for kategorien. */
 export const drinkMinutes = (entry) =>
