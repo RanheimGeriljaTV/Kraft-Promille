@@ -4,7 +4,7 @@
 
 Regner ut omtrent hvor høy promillen er nå, når den er under 0,2 og når den er helt nede på 0,00, med norske drikke-enheter. Alt regnes ut i nettleseren, og økten lagres bare lokalt (`localStorage`), slik at du kan lukke siden på fest og åpne den igjen senere på kvelden eller morgenen etter.
 
-> **Status:** v0.3.0. Skal ligge på **https://ranheimkraft.no/promille/** (nettsiden henter nye versjoner innen 3 timer etter at den er koblet på).
+> **Status:** v0.3.1. Skal ligge på **https://ranheimkraft.no/promille/** (nettsiden henter nye versjoner innen 3 timer etter at den er koblet på).
 >
 > **Forhåndsvisning:** https://ranheimgeriljatv.github.io/Kraft-Promille/
 
@@ -53,7 +53,11 @@ Enhetene ligger i [`src/data/drinks.js`](src/data/drinks.js).
   - Fordelingen gjør at toppen blir lavere og kommer senere enn om hele enheten var drukket på ett tidspunkt. Siste slurk (og dermed 12-timersregelen) regnes fra slutten av siste drikketid.
 - **Oppsummer i etterkant:** velg «Startet å drikke kl.» og «Sluttet å drikke kl.» og tell opp antallet av hver enhet. Enhetene fordeles jevnt fra start til slutt (første ved start, siste ved slutt), og typene flettes. Starttiden er siste gang klokka var det klokkeslettet, og sluttiden er første gang etter start, så 19:00–01:30 går over midnatt.
 
-**Start ny kveld / Tøm liste** tømmer drikkelisten i begge modusene, men beholder profilen.
+**Start ny kveld / Tøm liste** tømmer drikkelisten i begge modusene og setter «Startet/Sluttet å drikke» til i kveld (19:00 til 01:30), men beholder profilen.
+
+- **Dag og gammel kveld:** Feltene og listen viser dagen («i går», «i morgen») når den ikke er i dag. Er det du har registrert over 18 timer gammelt, vises en melding med knappen «Start ny kveld», så nye enheter ikke regnes inn på gårsdagen. En tom, gammel oppsummering får nye standardtider når siden åpnes.
+- **Planlagt:** En enhet med klokkeslett frem i tid vises som «Planlagt kl. …» og påvirker ikke «Promille nå», men flytter tidspunktene for edru.
+- **Sommertid:** Dager flyttes i kalenderen og ikke med 24 timer, så klokkeslettene holder seg riktige natten klokka stilles (25.10.2026 og 29.03.2026 er testet).
 
 ### Resultat
 
@@ -63,7 +67,7 @@ Enhetene ligger i [`src/data/drinks.js`](src/data/drinks.js).
 4. **12-timersregelen** – 12 timer etter siste enhet, sammenlignet med sikker sone, med en advarsel om at regelen ikke er til å stole på (tiden avhenger av mengde, styrke og hvor tett man drikker).
 5. **Time for time**: graf over begge kurvene og tabell fra første enhet til begge er på 0,00, med fargekoder: rød (> 0,5), oransje (0,2–0,5), gul (0,01–0,19) og grønn (0,00 på begge).
 
-Alle klokkeslett rundes **opp** til nærmeste 5 minutter. På mobil viser en fast linje nederst promillen nå og når sikker sone (0,00 ‰) nås. På PC (fra 1024 px) er siden et dashbord med to kolonner (maks 1280 px): profil og drikke til venstre (5/12), resultat til høyre (7/12).
+Alle klokkeslett rundes **opp** til nærmeste 5 minutter, og promillen vises rundet **opp** til to desimaler. Fargekoden, beskrivelsen og «over 0,2 ‰» bruker alltid tallet som vises, så siden aldri viser «0,20 ‰» ved siden av «Aldri over 0,2 ‰». Tabellen time for time har en egen rad for toppunktet. På mobil viser en fast linje nederst promillen nå og når sikker sone (0,00 ‰) nås. På PC (fra 1024 px) er siden et dashbord med to kolonner (maks 1280 px): profil og drikke til venstre (5/12), resultat til høyre (7/12).
 
 ## Regnemodellen
 

@@ -7,6 +7,7 @@ import {
   gramsAlcohol,
   level,
   promilleFromGrams,
+  roundUpPromille,
   sample,
   simulate,
   totalBodyWater,
@@ -57,7 +58,8 @@ describe('simulate', () => {
     expect(r.peakAt).toBe(T0 + H);
     // Helt edru når 1,0 ‰ er forbrent: 1 / 0,15 = 6,67 t.
     expect((r.soberAt - T0) / H).toBeCloseTo(1 / 0.15, 1);
-    expect((r.legalAt - T0) / H).toBeCloseTo(0.8 / 0.15, 1);
+    // «Over 0,2» regnes på verdien som vises (rundet opp), så grensen er 0,19 + litt.
+    expect((r.legalAt - T0) / H).toBeCloseTo(0.81 / 0.15, 1);
   });
 
   it('raskere opptak på tom mage gir høyere topp', () => {
@@ -119,6 +121,25 @@ describe('calculateEvening', () => {
   it('gir 0 og ingen tidspunkter uten drinker', () => {
     const r = calculateEvening(man, [], T0);
     expect(r).toMatchObject({ hasDrinks: false, now: 0, lastDrinkAt: null, twelveHourAt: null });
+  });
+});
+
+describe('avrunding opp (0,2-grensen)', () => {
+  it('runder promillen opp til to desimaler', () => {
+    expect(roundUpPromille(0.1996)).toBe(0.2);
+    expect(roundUpPromille(0.2)).toBe(0.2);
+    expect(roundUpPromille(0.2001)).toBe(0.21);
+    expect(roundUpPromille(0.001)).toBe(0.01);
+    expect(roundUpPromille(0)).toBe(0);
+  });
+
+  it('behandler 0,1996 som over grensen, slik tallet på skjermen sier', () => {
+    expect(level(0.1996)).toBe('orange');
+    expect(effectOf(0.1996)).toMatch(/Lett påvirket/);
+    // Toppen 0,1996 skal gi et tidspunkt for «under 0,2», ikke «aldri over».
+    const r = simulate([{ ts: T0, grams: (0.1996 * 40) / 0.8 }], opts(30, 0));
+    expect(r.peak).toBeCloseTo(0.1996, 4);
+    expect(r.legalAt).not.toBeNull();
   });
 });
 

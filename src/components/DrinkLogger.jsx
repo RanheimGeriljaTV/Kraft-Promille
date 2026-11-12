@@ -15,7 +15,8 @@ import {
 } from 'lucide-react';
 import { DRINKS, MAX_PER_DRINK, entryLabel, resolveChoice } from '../data/drinks';
 import { drinkMinutes } from '../utils/evening';
-import { formatDuration, toHHMM } from '../utils/time';
+import { STALE_EVENING_MS } from '../utils/restoreState';
+import { dayLabel, formatDuration, toHHMM } from '../utils/time';
 import { Panel, SectionLabel, Segmented } from './ui';
 
 const ICONS = { Beer, Wine, Martini, GlassWater };
@@ -152,14 +153,21 @@ function EntryList({ entries, now, onRetime, onFinish, onRemove }) {
         const label = entryLabel(entry);
         const minutes = drinkMinutes(entry);
         const marked = entry.durationMin != null;
-        const drinking = !marked && now < entry.ts + minutes * MINUTE;
+        const drinking = !marked && entry.ts <= now + MINUTE && now < entry.ts + minutes * MINUTE;
         // `now` oppdateres bare hvert 30. sekund, så en enhet du nettopp la til kan ligge litt frem.
         const canFinish = !marked && now >= entry.ts - MINUTE && now - entry.ts < FINISH_WINDOW_MS;
-        const status = marked
-          ? `Drukket over ${minutes} min`
-          : drinking
-            ? `Drikker nå · antas ferdig kl. ${toHHMM(entry.ts + minutes * MINUTE)}`
-            : `Antatt drukket over ${minutes} min`;
+        const planned = !marked && entry.ts > now + MINUTE;
+        const day = dayLabel(entry.ts, now);
+        const prefix = day === 'i dag' ? '' : `${day} · `;
+        const status =
+          prefix +
+          (marked
+            ? `Drukket over ${minutes} min`
+            : planned
+              ? `Planlagt kl. ${toHHMM(entry.ts)}`
+              : drinking
+                ? `Drikker nå · antas ferdig kl. ${toHHMM(entry.ts + minutes * MINUTE)}`
+                : `Antatt drukket over ${minutes} min`);
         return (
           <li
             key={entry.id}
@@ -210,7 +218,7 @@ function EntryList({ entries, now, onRetime, onFinish, onRemove }) {
   );
 }
 
-function TimeField({ label, value, onChange }) {
+function TimeField({ label, value, day, onChange }) {
   const id = useId();
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -224,6 +232,7 @@ function TimeField({ label, value, onChange }) {
         onChange={(e) => onChange(e.target.value)}
         className="h-12 w-full rounded-xl border border-white/10 bg-brand-navy px-3 font-syne text-lg font-bold text-white tabular-nums focus:border-accent"
       />
+      <span className="font-mono text-[11px] text-zinc-400">{day}</span>
     </div>
   );
 }
@@ -253,6 +262,15 @@ export default function DrinkLogger({
       ? entries.length
       : Object.values(summary.counts ?? {}).reduce((a, b) => a + b, 0);
 
+  // Siste tidspunkt i det som er registrert. Er det gammelt, spør vi om det er en ny kveld.
+  const lastTs =
+    totalUnits === 0
+      ? null
+      : mode === 'live'
+        ? Math.max(...entries.map((e) => e.ts + drinkMinutes(e) * MINUTE))
+        : summary.endTs;
+  const stale = lastTs !== null && now - lastTs > STALE_EVENING_MS;
+
   return (
     <Panel aria-labelledby={titleId}>
       <div className="flex items-center justify-between gap-3">
@@ -260,6 +278,25 @@ export default function DrinkLogger({
           Hva har du drukket?
         </SectionLabel>
       </div>
+
+      {stale && (
+        <div
+          role="status"
+          className="space-y-2 rounded-xl border border-orange-400/30 bg-orange-400/[0.07] p-3 text-xs leading-snug text-orange-100"
+        >
+          <p>
+            Det du har registrert, ender {dayLabel(lastTs, now)} kl. {toHHMM(lastTs)}. Er dette en
+            ny kveld? Da må listen tømmes, ellers regnes nye enheter inn på den gamle.
+          </p>
+          <button
+            type="button"
+            onClick={onReset}
+            className="min-h-11 touch-manipulation rounded-lg border border-orange-300/40 px-3 text-xs font-bold text-white transition hover:bg-white/10"
+          >
+            Start ny kveld
+          </button>
+        </div>
+      )}
 
       <Segmented
         label="Tidsstyring"
@@ -287,11 +324,13 @@ export default function DrinkLogger({
             <TimeField
               label="Startet å drikke kl."
               value={toHHMM(summary.startTs)}
+              day={dayLabel(summary.startTs, now)}
               onChange={(text) => onSummaryTime('start', text)}
             />
             <TimeField
               label="Sluttet å drikke kl."
               value={toHHMM(summary.endTs)}
+              day={dayLabel(summary.endTs, now)}
               onChange={(text) => onSummaryTime('end', text)}
             />
           </div>

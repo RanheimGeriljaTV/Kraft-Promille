@@ -8,7 +8,7 @@ import DrinkLogger from './components/DrinkLogger';
 import ResultDashboard from './components/ResultDashboard';
 import MobileStatusBar from './components/MobileStatusBar';
 import { findDrink, resolveChoice } from './data/drinks';
-import { newId, restoreState } from './utils/restoreState';
+import { defaultSummary, newId, restoreState } from './utils/restoreState';
 import { calculateEvening } from './utils/bacCalculator';
 import { entriesToDrinks, summaryToDrinks } from './utils/evening';
 import { loadState, saveState } from './utils/storage';
@@ -85,7 +85,7 @@ export default function App() {
       })),
     onReset: () => {
       if (!window.confirm('Tømme drikkelisten og starte en ny kveld? Profilen beholdes.')) return;
-      update((prev) => ({ entries: [], summary: { ...prev.summary, counts: {} } }));
+      update(() => ({ entries: [], summary: defaultSummary(Date.now()) }));
     },
   };
 

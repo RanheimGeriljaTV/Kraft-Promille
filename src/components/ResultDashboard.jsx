@@ -216,6 +216,10 @@ function Timeline({ normal, safe, now }) {
   const rows = [from];
   for (let t = new Date(from).setMinutes(0, 0, 0) + HOUR; t < end; t += HOUR) rows.push(t);
   rows.push(end);
+  // Toppunktet får en egen rad, ellers kan en topp midt mellom to hele timer forsvinne.
+  const peakAt = normal.peakAt === null ? null : Math.round(normal.peakAt / 60000) * 60000;
+  if (peakAt !== null && !rows.includes(peakAt)) rows.push(peakAt);
+  rows.sort((a, b) => a - b);
 
   return (
     <div className="space-y-3">
@@ -268,6 +272,9 @@ function Timeline({ normal, safe, now }) {
                   >
                     {toHHMM(t)}
                     {isNow && <span className="ml-2 text-[10px] text-accent uppercase">nå</span>}
+                    {t === peakAt && (
+                      <span className="ml-2 text-[10px] text-zinc-400 uppercase">topp</span>
+                    )}
                   </th>
                   <td className="px-3 py-1.5 text-right">
                     <Badge bac={n} />

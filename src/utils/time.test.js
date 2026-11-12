@@ -27,7 +27,9 @@ describe('tid', () => {
   });
 
   it('formaterer promille og varighet', () => {
-    expect(formatPromille(0.844)).toBe('0,84');
+    expect(formatPromille(0.844)).toBe('0,85');
+    expect(formatPromille(0.1996)).toBe('0,20');
+    expect(formatPromille(0)).toBe('0,00');
     expect(formatDuration(95 * 60 * 1000)).toBe('1 t 35 min');
     expect(formatDuration(91 * 60 * 1000)).toBe('1 t 35 min');
     expect(formatDuration(30 * 60 * 1000)).toBe('30 min');
@@ -71,5 +73,36 @@ describe('summaryToDrinks', () => {
     );
     expect(drinks).toHaveLength(1);
     expect(drinks[0].ts).toBe(at(14, 19, 0));
+  });
+});
+
+describe('sommertid (Europe/Oslo)', () => {
+  const hhmm = (ts) => toHHMM(ts);
+
+  it('oppsummering natt til 25.10.2026 (klokka stilles tilbake): 19:00–04:00 er 10 timer', () => {
+    const now = new Date(2026, 9, 25, 5, 0).getTime();
+    const start = latestAtOrBefore(now, '19:00');
+    const end = firstAtOrAfter(start, '04:00');
+    expect(hhmm(start)).toBe('19:00');
+    expect(new Date(start).getDate()).toBe(24);
+    expect(hhmm(end)).toBe('04:00');
+    expect((end - start) / 3600000).toBe(10);
+  });
+
+  it('flytter en enhet kl. 00:30 natt til 25.10.2026 til 23:50 kvelden før', () => {
+    const ts = new Date(2026, 9, 25, 0, 30).getTime();
+    const moved = retime(ts, '23:50');
+    expect(hhmm(moved)).toBe('23:50');
+    expect(new Date(moved).getDate()).toBe(24);
+  });
+
+  it('beholder klokkeslettet over 29.03.2026 (klokka stilles frem)', () => {
+    const now = new Date(2026, 2, 29, 5, 0).getTime();
+    const start = latestAtOrBefore(now, '19:00');
+    const end = firstAtOrAfter(start, '01:30');
+    expect(hhmm(start)).toBe('19:00');
+    expect(new Date(start).getDate()).toBe(28);
+    expect(hhmm(end)).toBe('01:30');
+    expect((end - start) / 3600000).toBe(6.5);
   });
 });

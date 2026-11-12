@@ -7,7 +7,11 @@ const inRange = (v, { min, max }) => isNum(v) && v >= min && v <= max;
 export const newId = () =>
   globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
-function defaultSummary(now) {
+/** Etter så lang tid regnes en lagret kveld som gammel (brukes av oppstart og advarselen). */
+export const STALE_EVENING_MS = 18 * 60 * 60 * 1000;
+
+/** Tom oppsummering for «i kveld»: 19:00 (siste gang) til 01:30 (første gang etter det). */
+export function defaultSummary(now) {
   const startTs = latestAtOrBefore(now, '19:00');
   return { startTs, endTs: firstAtOrAfter(startTs, '01:30'), counts: {} };
 }
@@ -53,17 +57,16 @@ export function restoreState(saved, now) {
     : [];
 
   const s = saved?.summary;
+  const counts = Object.fromEntries(
+    Object.entries(s?.counts ?? {}).filter(
+      ([id, n]) => findDrink(id) && isNum(n) && n > 0 && n <= MAX_PER_DRINK,
+    ),
+  );
+  // En tom, gammel oppsummering gjenbrukes ikke: da ville nye enheter havnet på gårsdagen.
+  const stale = s && now - s.endTs > STALE_EVENING_MS && Object.keys(counts).length === 0;
   const summary =
-    s && isNum(s.startTs) && isNum(s.endTs) && s.endTs >= s.startTs
-      ? {
-          startTs: s.startTs,
-          endTs: s.endTs,
-          counts: Object.fromEntries(
-            Object.entries(s.counts ?? {}).filter(
-              ([id, n]) => findDrink(id) && isNum(n) && n > 0 && n <= MAX_PER_DRINK,
-            ),
-          ),
-        }
+    s && isNum(s.startTs) && isNum(s.endTs) && s.endTs >= s.startTs && !stale
+      ? { startTs: s.startTs, endTs: s.endTs, counts }
       : defaultSummary(now);
 
   return {

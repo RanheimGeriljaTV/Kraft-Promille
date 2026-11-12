@@ -1,4 +1,5 @@
 /** Klokkeslett og formatering. Rene funksjoner, testet i time.test.js. */
+import { roundUpPromille } from './bacCalculator';
 
 const MINUTE = 60 * 1000;
 const DAY = 24 * 60 * MINUTE;
@@ -29,8 +30,8 @@ export function dayLabel(ts, now) {
   });
 }
 
-/** «0,84». */
-export const formatPromille = (bac) => bac.toFixed(2).replace('.', ',');
+/** «0,85» – rundet OPP til to desimaler (se roundUpPromille). */
+export const formatPromille = (bac) => roundUpPromille(bac).toFixed(2).replace('.', ',');
 
 /** «1,5» – inntil én desimal, med komma. */
 export const formatDecimal = (value) => (Math.round(value * 10) / 10).toString().replace('.', ',');
@@ -53,16 +54,23 @@ export function parseHHMM(text) {
   return h < 24 && m < 60 ? { h, m } : null;
 }
 
-const atTime = (ts, { h, m }) => new Date(ts).setHours(h, m, 0, 0);
+/**
+ * Klokkeslettet `hm` på dagen `days` dager fra `ts`. Dagene flyttes i kalenderen (setDate),
+ * ikke med 24 timer i millisekunder, for et døgn er 23 eller 25 timer når klokka stilles.
+ */
+const atTime = (ts, { h, m }, days = 0) => {
+  const d = new Date(ts);
+  d.setDate(d.getDate() + days);
+  return d.setHours(h, m, 0, 0);
+};
 
 /** Samme klokkeslett som `text`, på den dagen som ligger nærmest `ts` (for å flytte en enhet). */
 export function retime(ts, text) {
   const hm = parseHHMM(text);
   if (!hm) return ts;
-  const same = atTime(ts, hm);
-  return [same - DAY, same, same + DAY].reduce((best, c) =>
-    Math.abs(c - ts) < Math.abs(best - ts) ? c : best,
-  );
+  return [-1, 0, 1]
+    .map((days) => atTime(ts, hm, days))
+    .reduce((best, c) => (Math.abs(c - ts) < Math.abs(best - ts) ? c : best));
 }
 
 /** Siste gang klokka var `text`, nå eller tidligere (for «Startet å drikke kl.»). */
@@ -70,7 +78,7 @@ export function latestAtOrBefore(now, text) {
   const hm = parseHHMM(text);
   if (!hm) return now;
   const same = atTime(now, hm);
-  return same <= now ? same : same - DAY;
+  return same <= now ? same : atTime(now, hm, -1);
 }
 
 /** Første gang klokka er `text` etter `ts` (eller lik). For «Sluttet å drikke kl.». */
@@ -78,5 +86,5 @@ export function firstAtOrAfter(ts, text) {
   const hm = parseHHMM(text);
   if (!hm) return ts;
   const same = atTime(ts, hm);
-  return same >= ts ? same : same + DAY;
+  return same >= ts ? same : atTime(ts, hm, 1);
 }

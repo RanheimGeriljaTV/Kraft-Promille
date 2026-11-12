@@ -7,6 +7,24 @@ og prosjektet følger [Semantic Versioning](https://semver.org/lang/no/).
 
 ## [Unreleased]
 
+## [0.3.1] - 2026-11-12
+
+Retter feil fra kodegjennomgangen og QA-runden (issues #1 og #2) som kunne gi et for tidlig klokkeslett.
+
+### Rettet
+
+- «Start ny kveld» og en tom, gammel oppsummering bruker nå i kveld som start og slutt. Før ble nye enheter lagt på gårsdagens dato, og appen viste 0,00 ‰ og «Nådd» etter fire halvlitere (#1 H1, #2 Q1).
+- Sommertid: klokkeslett hoppet en time natten klokka stilles. Dager flyttes nå i kalenderen i stedet for med 24 timer (#1 M1, #2 Q3).
+- Enheter med klokkeslett frem i tid vises som «Planlagt» i stedet for «Drikker nå» (#1 M2, #2 Q4).
+- Promillen rundes opp til to desimaler, og nivå, tekst og «over 0,2 ‰» bruker tallet som vises. Før kunne «0,20 ‰» stå ved siden av «Aldri over 0,2 ‰» (#1 M3, #2 Q5).
+
+### Lagt til
+
+- Dag («i går», «i morgen») i feltene for start og slutt og i listen over enheter (#1 L2).
+- Melding med «Start ny kveld» når det registrerte er over 18 timer gammelt.
+- Egen rad for toppunktet i tabellen time for time (#1 L3).
+- Tester for ny kveld neste dag, sommertid (tidssone Europe/Oslo), planlagte enheter, avrunding og toppunktrad.
+
 ## [0.3.0] - 2026-11-11
 
 ### Lagt til
@@ -73,7 +91,8 @@ og prosjektet følger [Semantic Versioning](https://semver.org/lang/no/).
 - Tester med Vitest for regnemodell, klokkeslett, appen, lagring, tilgjengelighet (axe) og SEO.
 - Workflow som tester, bygger, publiserer forhåndsvisning på GitHub Pages og pusher bygget til grenen `build`.
 
-[Unreleased]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.4...v0.2.0
 [0.1.4]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.3...v0.1.4

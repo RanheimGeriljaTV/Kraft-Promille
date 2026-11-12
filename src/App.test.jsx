@@ -197,7 +197,71 @@ describe('Drikketid og «Ferdig»', () => {
     add('Øl 0,5 l');
     act(() => vi.advanceTimersByTime(2 * 60 * 60 * 1000 + 60 * 1000));
     expect(screen.queryByRole('button', { name: /^Ferdig med/ })).not.toBeInTheDocument();
-    expect(screen.getByText('Antatt drukket over 40 min')).toBeInTheDocument();
+    expect(screen.getByText('i går · Antatt drukket over 40 min')).toBeInTheDocument();
+  });
+});
+
+describe('Ny kveld og planlagte enheter', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'Date'] });
+  });
+  afterEach(() => vi.useRealTimers());
+
+  it('«Start ny kveld» regner oppsummeringen på nytt fra nå (QA Q1)', () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    // Fredag kl. 23:00: oppsummering 19:00–01:30 med 2 halvlitere.
+    vi.setSystemTime(at(13, 23, 0));
+    const first = render(<App />);
+    fireEvent.click(screen.getByRole('radio', { name: /Oppsummer i etterkant/ }));
+    const more = screen.getByRole('button', { name: /^Én til: Øl 0,5 l/ });
+    fireEvent.click(more);
+    fireEvent.click(more);
+    first.unmount();
+
+    // Lørdag kl. 23:00: advarsel om gammel kveld, så «Start ny kveld», så 4 halvlitere.
+    vi.setSystemTime(at(14, 23, 0));
+    render(<App />);
+    expect(screen.getByText(/Det du har registrert, ender i dag kl\. 01:30/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Start ny kveld' }));
+    expect(screen.queryByText(/Det du har registrert, ender/)).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Startet å drikke kl.')).toHaveValue('19:00');
+    expect(screen.getByText('i dag', { selector: 'span' })).toBeInTheDocument();
+    const again = screen.getByRole('button', { name: /^Én til: Øl 0,5 l/ });
+    for (let i = 0; i < 4; i++) fireEvent.click(again);
+    expect(saved().summary.startTs).toBe(at(14, 19, 0));
+    expect(promilleNow()).not.toBe('0,00‰');
+  });
+
+  it('bruker ny standardkveld når en tom, gammel oppsummering lastes', () => {
+    vi.setSystemTime(at(14, 23, 0));
+    const state = restoreState(
+      { summary: { startTs: at(12, 19, 0), endTs: at(13, 1, 30), counts: {} } },
+      at(14, 23, 0),
+    );
+    expect(state.summary.startTs).toBe(at(14, 19, 0));
+    expect(state.summary.endTs).toBe(at(15, 1, 30));
+  });
+
+  it('viser en enhet frem i tid som «Planlagt», ikke «Drikker nå» (QA Q4)', () => {
+    vi.setSystemTime(at(14, 0, 30));
+    render(<App />);
+    add('Glass vin');
+    fireEvent.change(screen.getByLabelText(/^Klokkeslett for Glass vin/), {
+      target: { value: '02:00' },
+    });
+    expect(screen.getByText('Planlagt kl. 02:00')).toBeInTheDocument();
+    expect(screen.queryByText(/Drikker nå/)).not.toBeInTheDocument();
+    expect(promilleNow()).toBe('0,00‰');
+  });
+
+  it('har en rad for toppunktet i tabellen time for time', () => {
+    vi.setSystemTime(at(14, 22, 0));
+    render(<App />);
+    fireEvent.click(screen.getByRole('radio', { name: /Oppsummer i etterkant/ }));
+    fireEvent.change(screen.getByLabelText('Startet å drikke kl.'), { target: { value: '20:00' } });
+    fireEvent.change(screen.getByLabelText('Sluttet å drikke kl.'), { target: { value: '20:00' } });
+    fireEvent.click(screen.getByRole('button', { name: /^Én til: Øl 0,5 l/ }));
+    expect(screen.getByRole('table')).toHaveTextContent('topp');
   });
 });
 

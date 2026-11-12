@@ -28,6 +28,12 @@ export const ABSORPTION_MINUTES = { empty: 30, fed: 60 };
 export const SAFE_ABSORPTION_MINUTES = 60;
 
 export const DRIVING_LIMIT = 0.2;
+
+/**
+ * Promillen slik den vises: rundet OPP til to desimaler. Tall, nivå, tekst og «over 0,2»
+ * bruker alltid denne verdien, så siden aldri viser «0,20» ved siden av «under 0,2».
+ */
+export const roundUpPromille = (bac) => Math.ceil(Number((bac * 100).toFixed(6))) / 100;
 export const TWELVE_HOURS_MS = 12 * 60 * 60 * 1000;
 
 const MINUTE = 60 * 1000;
@@ -108,7 +114,7 @@ export function simulate(drinks, { tbw, burnRate, absorptionMinutes }) {
       peak = bac;
       peakAt = at;
     }
-    if (bac >= DRIVING_LIMIT) lastOverLimit = at;
+    if (roundUpPromille(bac) >= DRIVING_LIMIT) lastOverLimit = at;
     if (bac > 0) lastPositive = at;
     if (at >= allAbsorbed && bac === 0) break;
   }
@@ -180,19 +186,21 @@ export function calculateEvening(profile, drinks, now) {
 
 /** Fargekode for et promillenivå (tidslinjen). */
 export function level(bac) {
-  if (bac > 0.5) return 'red';
-  if (bac >= DRIVING_LIMIT) return 'orange';
-  if (bac > 0.005) return 'yellow';
+  const shown = roundUpPromille(bac);
+  if (shown > 0.5) return 'red';
+  if (shown >= DRIVING_LIMIT) return 'orange';
+  if (shown > 0) return 'yellow';
   return 'green';
 }
 
 /** Kort beskrivelse av typisk påvirkning på et nivå. */
 export function effectOf(bac) {
-  if (bac < 0.005) return 'Ingen alkohol i blodet.';
-  if (bac < 0.2) return 'Lite merkbart, men reaksjonsevnen kan allerede være svekket.';
-  if (bac < 0.5) return 'Lett påvirket: mer pratsom, dårligere dømmekraft og konsentrasjon.';
-  if (bac < 1.0) return 'Tydelig påvirket: tregere reaksjoner og dårligere koordinasjon.';
-  if (bac < 1.5) return 'Beruset: ustø gange, utydelig tale og svekket hukommelse.';
-  if (bac < 2.5) return 'Sterkt beruset: kvalme, oppkast og fare for hukommelsestap.';
+  const shown = roundUpPromille(bac);
+  if (shown === 0) return 'Ingen alkohol i blodet.';
+  if (shown < 0.2) return 'Lite merkbart, men reaksjonsevnen kan allerede være svekket.';
+  if (shown < 0.5) return 'Lett påvirket: mer pratsom, dårligere dømmekraft og konsentrasjon.';
+  if (shown < 1.0) return 'Tydelig påvirket: tregere reaksjoner og dårligere koordinasjon.';
+  if (shown < 1.5) return 'Beruset: ustø gange, utydelig tale og svekket hukommelse.';
+  if (shown < 2.5) return 'Sterkt beruset: kvalme, oppkast og fare for hukommelsestap.';
   return 'Fare for alkoholforgiftning. Ring 113 hvis noen ikke er kontaktbar.';
 }
