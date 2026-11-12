@@ -30,7 +30,7 @@ function When({ ts, now, big = false }) {
         kl. {toHHMM(at)}
       </span>
       <span className="block font-mono text-[11px] text-zinc-400">
-        {[day !== 'i dag' && day, passed ? 'nådd' : `om ${formatDuration(at - now)}`]
+        {[day !== 'i dag' && day, passed ? 'anslag nådd' : `om ${formatDuration(at - now)}`]
           .filter(Boolean)
           .join(' · ')}
       </span>
@@ -186,7 +186,7 @@ function Chart({ normal, safe, from, to, now }) {
             aria-hidden="true"
             className="h-0 w-5 border-t-2 border-dashed border-emerald-300"
           />
-          Sikker sone ({fmtRate(BURN_SAFE)} ‰/t)
+          Forsiktig anslag ({fmtRate(BURN_SAFE)} ‰/t)
         </span>
         <span className="flex items-center gap-1.5">
           <span aria-hidden="true" className="size-2 rounded-full bg-white" />
@@ -251,7 +251,7 @@ function Timeline({ normal, safe, now }) {
                 Normal
               </th>
               <th scope="col" className="px-3 py-2 text-right font-normal">
-                Sikker sone
+                Forsiktig
               </th>
             </tr>
           </thead>
@@ -292,7 +292,7 @@ function Timeline({ normal, safe, now }) {
   );
 }
 
-/** Sanntidspromille, bilkjøring, sikker sone, 12-timersregelen og tidslinje. */
+/** Sanntidspromille, bilkjøring, forsiktig anslag, 12-timersregelen og tidslinje. */
 export default function ResultDashboard({ index, result, now }) {
   const titleId = useId();
   const { hasDrinks, normal, safe, twelveHourAt } = result;
@@ -347,7 +347,7 @@ export default function ResultDashboard({ index, result, now }) {
               <dt className="font-mono text-[11px] text-zinc-400 uppercase">Under 0,2 ‰</dt>
               <dd>
                 {hasDrinks && normal.legalAt === null ? (
-                  <span className="block text-sm text-zinc-300">Aldri over 0,2 ‰</span>
+                  <span className="block text-sm text-zinc-300">Anslått under 0,2 ‰</span>
                 ) : (
                   <When ts={hasDrinks ? normal.legalAt : null} now={now} />
                 )}
@@ -362,15 +362,16 @@ export default function ResultDashboard({ index, result, now }) {
 
         <Card
           icon={ShieldCheck}
-          title="Grønt lys / Sikker sone"
-          subtitle={`Konservativ forbrenning ${fmtRate(BURN_SAFE)} ‰/t og full opptakstid`}
+          title="Forsiktig anslag for 0,00 ‰"
+          subtitle={`Forbrenning ${fmtRate(BURN_SAFE)} ‰/t, full opptakstid og ingen resorpsjonstap`}
           highlight
         >
           <div data-testid="safe-sober">
             <When ts={hasDrinks ? safe.soberAt : null} now={now} big />
           </div>
           <p className="text-xs leading-snug text-emerald-100/80">
-            Det tryggeste valget dagen derpå: også med treg forbrenning er du da på 0,00 ‰.
+            Det forsiktigste anslaget dagen derpå: også med treg forbrenning er du da sannsynligvis
+            nede på 0,00 ‰. Det er fortsatt et estimat, ikke en garanti.
           </p>
         </Card>
 
@@ -393,14 +394,15 @@ export default function ResultDashboard({ index, result, now }) {
                 className={`max-w-xs text-xs leading-snug ${twelveVsSafe < 0 ? 'text-orange-300' : 'text-zinc-300'}`}
               >
                 {twelveVsSafe < 0
-                  ? `Obs: 12 timer er ikke nok i kveld. Sikker sone kommer ${formatDuration(-twelveVsSafe)} senere.`
-                  : `12-timersregelen er ${formatDuration(twelveVsSafe)} etter din utregnede sikre sone.`}
+                  ? `Obs: 12 timer er ikke nok i kveld. Det forsiktige anslaget kommer ${formatDuration(-twelveVsSafe)} senere.`
+                  : `12-timersregelen er ${formatDuration(twelveVsSafe)} etter ditt forsiktige anslag.`}
               </p>
             )}
           </div>
           <p className="text-xs leading-snug text-zinc-400">
             Ikke stol på 12-timersregelen. Hvor lang tid du trenger, avhenger av hvor mye, hvor
-            sterkt og hvor tett du har drukket. Bruk heller sikker sone.
+            sterkt og hvor tett du har drukket. Bruk heller det forsiktige anslaget, og vær
+            forsiktig også da.
           </p>
         </Card>
       </div>

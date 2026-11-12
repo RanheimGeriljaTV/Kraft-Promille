@@ -92,7 +92,7 @@ export default function App() {
   const safeAt = result.hasDrinks ? roundUp5(result.safe.soberAt) : null;
   const announcement = useAnnouncement(
     result.hasDrinks
-      ? `Estimert promille ${formatPromille(result.now)}. Sikker sone klokka ${toHHMM(safeAt)}.`
+      ? `Estimert promille ${formatPromille(result.now)}. Forsiktig anslag for 0,00 promille klokka ${toHHMM(safeAt)}.`
       : '',
     800,
   );

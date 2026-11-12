@@ -6,6 +6,9 @@ import {
   effectOf,
   gramsAlcohol,
   level,
+  MAX_EFFECTIVE_R,
+  normalTbw,
+  safeTbw,
   promilleFromGrams,
   roundUpPromille,
   sample,
@@ -24,7 +27,8 @@ const opts = (absorptionMinutes = 60, burnRate = 0.15) => ({
 
 describe('totalBodyWater (Watson)', () => {
   it('mann 30 år, 180 cm, 80 kg', () => {
-    expect(totalBodyWater(man)).toBeCloseTo(2.447 - 2.7468 + 19.332 + 26.896, 3);
+    // Watson 1980: alderleddet er 0,09516 (Merck/MSD har skrevet 0,09156).
+    expect(totalBodyWater(man)).toBeCloseTo(2.447 - 2.8548 + 19.332 + 26.896, 3);
   });
 
   it('kvinne bruker ikke alder', () => {
@@ -162,5 +166,88 @@ describe('sample, level og effectOf', () => {
     expect(effectOf(0)).toMatch(/Ingen alkohol/);
     expect(effectOf(0.84)).toMatch(/Tydelig påvirket/);
     expect(effectOf(3)).toMatch(/113/);
+  });
+});
+
+/**
+ * Uavhengig fasit: Widmark med r = 0,7 (menn) og 0,6 (kvinner), øyeblikkelig opptak, ingen
+ * resorpsjonstap og 0,10 ‰/t. Skrevet for seg selv, uten å bruke noe fra bacCalculator.js.
+ */
+function widmarkSoberHours({ sex, weightKg }, rawGrams, hoursOfDrinks, burn = 0.1) {
+  const r = sex === 'male' ? 0.7 : 0.6;
+  let bac = 0;
+  for (let minute = 0; minute < 96 * 60; minute++) {
+    hoursOfDrinks.forEach((h, i) => {
+      if (minute === h * 60) bac += rawGrams[i] / (r * weightKg);
+    });
+    if (bac > 0) bac = Math.max(0, bac - burn / 60);
+    if (bac === 0 && minute > Math.max(...hoursOfDrinks) * 60) return minute / 60;
+  }
+  return 96;
+}
+
+describe('Forsiktig kurve mot uavhengig fasit (QA-tabellen i issue #2)', () => {
+  const halvliter = 5 * 4.7 * 0.789; // gram ren alkohol før tap
+  const personas = [
+    { name: 'mann 80 kg, 180 cm, 30 år', sex: 'male', weightKg: 80, heightCm: 180, age: 30 },
+    { name: 'kvinne 65 kg, 165 cm', sex: 'female', weightKg: 65, heightCm: 165, age: 30 },
+    { name: 'kvinne 50 kg, 160 cm', sex: 'female', weightKg: 50, heightCm: 160, age: 30 },
+    { name: 'mann 60 kg, 190 cm, 18 år', sex: 'male', weightKg: 60, heightCm: 190, age: 18 },
+    { name: 'mann 120 kg, 175 cm, 50 år', sex: 'male', weightKg: 120, heightCm: 175, age: 50 },
+    { name: 'mann 40 kg, 210 cm, 18 år', sex: 'male', weightKg: 40, heightCm: 210, age: 18 },
+  ];
+
+  it.each(personas)('er aldri tidligere enn Widmark med 0,10 ‰/t: $name', (p) => {
+    const hours = [0, 1, 2, 3];
+    const drinks = hours.map((h) => ({ ts: T0 + h * H, grams: halvliter * 0.9 }));
+    const r = calculateEvening({ ...p, stomach: 'fed' }, drinks, T0 + 5 * H);
+    const appHours = (r.safe.soberAt - T0) / H;
+    const reference = widmarkSoberHours(
+      p,
+      hours.map(() => halvliter),
+      hours,
+    );
+    expect(appHours).toBeGreaterThanOrEqual(reference - 0.05);
+    // ... og heller ikke urimelig mye senere enn fasiten (maks 15 % eller 1,5 t).
+    expect(appHours).toBeLessThan(reference * 1.15 + 1.5);
+  });
+
+  it.each(personas)('forsiktig er senere enn normal: $name', (p) => {
+    const drinks = [0, 1, 2, 3].map((h) => ({ ts: T0 + h * H, grams: halvliter * 0.9 }));
+    const r = calculateEvening({ ...p, stomach: 'fed' }, drinks, T0);
+    expect(r.safe.soberAt).toBeGreaterThan(r.normal.soberAt);
+    expect(r.safe.peak).toBeGreaterThan(0);
+  });
+
+  it('håndregnet: 56 g på 80 kg mann gir 1,0 ‰ og 10 timer med 0,10 ‰/t', () => {
+    // 56 g / (0,7 × 80 kg) = 1,0 ‰. Normalprofilen gir TBW 44,8 l (Widmark er lavest av de to).
+    const p = { sex: 'male', weightKg: 80, heightCm: 180, age: 30, stomach: 'fed' };
+    const r = calculateEvening(p, [{ ts: T0, grams: 56 * 0.9 }], T0);
+    expect(safeTbw(p)).toBeCloseTo(44.8, 6);
+    expect((r.safe.soberAt - T0) / H).toBeCloseTo(10, 1);
+  });
+
+  it('effektiv r i normalkurven er aldri over taket, for alle tillatte profiler', () => {
+    for (const sex of ['male', 'female']) {
+      for (let weightKg = 40; weightKg <= 160; weightKg += 10) {
+        for (let heightCm = 140; heightCm <= 210; heightCm += 10) {
+          for (let age = 18; age <= 90; age += 18) {
+            const p = { sex, weightKg, heightCm, age };
+            const rEff = normalTbw(p) / (0.8 * 0.9 * weightKg);
+            expect(rEff).toBeLessThanOrEqual(MAX_EFFECTIVE_R + 1e-9);
+            // Den forsiktige kurven bruker aldri mer kroppsvæske enn Widmark.
+            expect(safeTbw(p)).toBeLessThanOrEqual(
+              (sex === 'male' ? 0.7 : 0.6) * 0.8 * weightKg + 1e-9,
+            );
+          }
+        }
+      }
+    }
+  });
+
+  it('taket slår inn for den slanke og høye (r over 1 uten tak)', () => {
+    const p = { sex: 'male', weightKg: 40, heightCm: 210, age: 18 };
+    expect(totalBodyWater(p) / (0.8 * 0.9 * 40)).toBeGreaterThan(1);
+    expect(normalTbw(p) / (0.8 * 0.9 * 40)).toBeCloseTo(MAX_EFFECTIVE_R, 9);
   });
 });

@@ -7,6 +7,27 @@ og prosjektet følger [Semantic Versioning](https://semver.org/lang/no/).
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-11-12
+
+Modell og ordbruk etter kodegjennomgangen og QA-runden (issues #1 og #2).
+
+### Endret
+
+- **Forsiktig kurve** (tidligere «Sikker sone»): ingen resorpsjonstap, det laveste av Watson og Widmark-tilsvarende kroppsvæske, 0,10 ‰/t og 60 min opptak. Før kunne den vise 0,00 ‰ 2–3 timer tidligere enn Widmark med 0,10 ‰/t for slanke og høye personer og små kvinner (#1 H2, #2 Q2).
+- **Tak på effektiv r** i normalkurven (0,8). Før kunne Watson alene gi r over 1 ved ytterpunkter som er lov å skrive inn, for eksempel 40 kg og 210 cm.
+- **Ordbruk** (#1 H3): «Grønt lys / Sikker sone» heter nå «Forsiktig anslag for 0,00 ‰», «er du da på 0,00 ‰» er «sannsynligvis nede på 0,00 ‰», «Aldri over 0,2 ‰» er «Anslått under 0,2 ‰» og «Nådd» er «Anslag nådd». Teksten sier også at det fortsatt er et estimat.
+- Den faste linjen på mobil har en lenke («vilkår») til de fullstendige vilkårene.
+- «Spørsmål og svar» og de strukturerte dataene (FAQPage) bruker de nye navnene.
+- README er rettet: påstanden om at modellen gir omtrent det samme som Widmark gjaldt bare for en gjennomsnittlig mann, og tidspunktene, ikke toppen.
+
+### Rettet
+
+- Alderleddet i Watsons formel for menn er 0,09516 (var 0,09156, en vanlig tastefeil, se Watson et al. 1980). Utslaget er under 1 % (#1 L1).
+
+### Lagt til
+
+- Tester mot en uavhengig Widmark-beregning (seks profiler fra QA-tabellen), en håndregnet kontroll (56 g på 80 kg mann gir 1,0 ‰ og 10 timer), egenskapstester for taket på r og ordbrukstester (#1 M4).
+
 ## [0.3.1] - 2026-11-12
 
 Retter feil fra kodegjennomgangen og QA-runden (issues #1 og #2) som kunne gi et for tidlig klokkeslett.
@@ -91,7 +112,8 @@ Retter feil fra kodegjennomgangen og QA-runden (issues #1 og #2) som kunne gi et
 - Tester med Vitest for regnemodell, klokkeslett, appen, lagring, tilgjengelighet (axe) og SEO.
 - Workflow som tester, bygger, publiserer forhåndsvisning på GitHub Pages og pusher bygget til grenen `build`.
 
-[Unreleased]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/RanheimGeriljaTV/Kraft-Promille/compare/v0.1.4...v0.2.0

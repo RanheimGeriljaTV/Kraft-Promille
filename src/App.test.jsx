@@ -129,7 +129,9 @@ describe('Kraft Promille', () => {
     const live = screen.getByTestId('announcement');
     expect(live).toBeEmptyDOMElement();
     act(() => vi.advanceTimersByTime(900));
-    expect(live).toHaveTextContent(/^Estimert promille 0,00\. Sikker sone klokka \d\d:\d\d\.$/);
+    expect(live).toHaveTextContent(
+      /^Estimert promille 0,00\. Forsiktig anslag for 0,00 promille klokka \d\d:\d\d\.$/,
+    );
   });
 });
 
@@ -198,6 +200,36 @@ describe('Drikketid og «Ferdig»', () => {
     act(() => vi.advanceTimersByTime(2 * 60 * 60 * 1000 + 60 * 1000));
     expect(screen.queryByRole('button', { name: /^Ferdig med/ })).not.toBeInTheDocument();
     expect(screen.getByText('i går · Antatt drukket over 40 min')).toBeInTheDocument();
+  });
+});
+
+describe('Forsiktig ordbruk', () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['setInterval', 'Date'] });
+    vi.setSystemTime(at(14, 22, 0));
+  });
+  afterEach(() => vi.useRealTimers());
+
+  it('sier ikke «Grønt lys», «Aldri over» eller «Nådd» (issue #1 H3)', () => {
+    const { container } = render(<App />);
+    add('Øl 0,4 l');
+    const text = container.textContent;
+    expect(text).not.toMatch(/Grønt lys|Aldri over|Nådd|er du da på 0,00/);
+    expect(text).toMatch(/Forsiktig anslag for 0,00/);
+  });
+
+  it('har en lenke til vilkårene i den faste linjen på mobil', () => {
+    render(<App />);
+    const bar = within(screen.getByTestId('mobile-bar'));
+    expect(bar.getByRole('link', { name: 'vilkår' })).toHaveAttribute('href', '#vilkar');
+    expect(bar.getByText('Forsiktig anslag 0,00 ‰')).toBeInTheDocument();
+  });
+
+  it('sier «Anslått under 0,2 ‰» når toppen er under grensen', () => {
+    render(<App />);
+    fireEvent.click(screen.getByRole('radio', { name: /Oppsummer i etterkant/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Én til: Shot 4 cl/ }));
+    expect(screen.getByText('Anslått under 0,2 ‰')).toBeInTheDocument();
   });
 });
 
@@ -342,7 +374,7 @@ describe('Tilgjengelighet (axe)', () => {
     ).toEqual([
       'Estimert promille nå',
       'Bilkjøring: 0,00 ‰ og 0,2 ‰-grensen',
-      'Grønt lys / Sikker sone',
+      'Forsiktig anslag for 0,00 ‰',
       '12-timersregelen etter siste enhet',
     ]);
   });

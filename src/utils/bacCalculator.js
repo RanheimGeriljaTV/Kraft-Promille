@@ -2,15 +2,21 @@
  * Matematisk motor for Kraft Promille. Bare rene funksjoner, testet i bacCalculator.test.js.
  *
  * Modellen:
- * 1. Kroppsvæske (TBW, liter) med Watsons formel.
- * 2. Gram alkohol per enhet, med 10 % resorpsjonstap i mage/lever.
+ * 1. Kroppsvæske (TBW, liter) med Watsons formel (Watson 1980, alderleddet er 0,09516).
+ * 2. Gram alkohol per enhet, med 10 % resorpsjonstap i mage/lever (normalkurven).
  * 3. Promille = gram × 0,8 / TBW. Alkoholen fordeler seg i kroppsvæsken, og blod er ca. 80 % vann,
  *    så dette er Widmark-korreksjonen der TBW er den faktiske væskefordelingen.
  * 4. Hver enhet drikkes jevnt over drikketiden (`durationMs`, 0 = alt på en gang), og alkoholen
  *    tas opp lineært over 30 min (tom mage) eller 60 min (mat).
- * 5. Forbrenningen starter med første slurk og går så lenge promillen er over 0:
- *    0,15 ‰/t (normal) og 0,10 ‰/t (konservativ sikkerhetsmargin).
+ * 5. Forbrenningen starter med første slurk og går så lenge promillen er over 0.
  *
+ * To kurver:
+ * - Normal: 0,15 ‰/t, Watson med 10 % tap. TBW har et tak, så effektiv Widmark-faktor (r) aldri
+ *   blir over 0,8 (for slanke og høye kan Watson ellers gi r over 1, som er fysiologisk umulig).
+ * - Forsiktig: 0,10 ‰/t, 60 min opptak, INGEN resorpsjonstap og det laveste av Watson og
+ *   Widmark (r = 0,7 menn og 0,6 kvinner). Den er derfor aldri tidligere enn Widmark med 0,10 ‰/t.
+ *
+
  * Alle tidspunkter er millisekunder (Date.getTime()).
  */
 
@@ -19,6 +25,10 @@ export const ETHANOL_DENSITY = 0.789;
 export const ABSORBED_SHARE = 0.9;
 /** Vannandelen i blod. */
 export const BLOOD_WATER = 0.8;
+/** Widmark-faktoren (r), norsk tommelfingerregel. Brukes som gulv i den forsiktige kurven. */
+export const WIDMARK_R = { male: 0.7, female: 0.6 };
+/** Tak på effektiv Widmark-faktor i normalkurven. */
+export const MAX_EFFECTIVE_R = 0.8;
 
 export const BURN_NORMAL = 0.15;
 export const BURN_SAFE = 0.1;
@@ -45,8 +55,22 @@ const MAX_HOURS = 96;
 /** Kroppsvæske i liter (Watsons formel). */
 export function totalBodyWater({ sex, age, heightCm, weightKg }) {
   if (sex === 'female') return -2.097 + 0.1069 * heightCm + 0.2466 * weightKg;
-  return 2.447 - 0.09156 * age + 0.1074 * heightCm + 0.3362 * weightKg;
+  return 2.447 - 0.09516 * age + 0.1074 * heightCm + 0.3362 * weightKg;
 }
+
+/** Kroppsvæske til normalkurven: Watson, men slik at effektiv r (med 10 % tap) holder seg under taket. */
+export const normalTbw = (profile) =>
+  Math.min(
+    totalBodyWater(profile),
+    MAX_EFFECTIVE_R * BLOOD_WATER * ABSORBED_SHARE * profile.weightKg,
+  );
+
+/** Kroppsvæske til den forsiktige kurven: det laveste av Watson og Widmark (gir høyest promille). */
+export const safeTbw = (profile) =>
+  Math.min(
+    totalBodyWater(profile),
+    WIDMARK_R[profile.sex === 'female' ? 'female' : 'male'] * BLOOD_WATER * profile.weightKg,
+  );
 
 /** Gram ren alkohol som når blodet: volum i dl × prosent × 0,789 × 0,90. */
 export const gramsAlcohol = (volumeDl, abvPercent) =>
@@ -148,6 +172,8 @@ export function sample(points, from, to, minutes = 15) {
 
 /**
  * Hele utregningen for appen: profil + drinker → to kurver og nøkkeltall.
+ * `grams` er gram alkohol som når blodet (etter 10 % tap, se gramsAlcohol). Den forsiktige kurven
+ * regner dem tilbake til full mengde.
  *
  * @param {{ sex: 'male' | 'female', age: number, heightCm: number, weightKg: number,
  *   stomach: 'empty' | 'fed' }} profile
@@ -155,14 +181,15 @@ export function sample(points, from, to, minutes = 15) {
  * @param {number} now
  */
 export function calculateEvening(profile, drinks, now) {
-  const tbw = totalBodyWater(profile);
+  const tbw = normalTbw(profile);
   const normal = simulate(drinks, {
     tbw,
     burnRate: BURN_NORMAL,
     absorptionMinutes: ABSORPTION_MINUTES[profile.stomach] ?? ABSORPTION_MINUTES.fed,
   });
-  const safe = simulate(drinks, {
-    tbw,
+  const safeDrinks = drinks.map((d) => ({ ...d, grams: d.grams / ABSORBED_SHARE }));
+  const safe = simulate(safeDrinks, {
+    tbw: safeTbw(profile),
     burnRate: BURN_SAFE,
     absorptionMinutes: Math.max(
       SAFE_ABSORPTION_MINUTES,
@@ -174,6 +201,7 @@ export function calculateEvening(profile, drinks, now) {
 
   return {
     tbw,
+    tbwSafe: safeTbw(profile),
     hasDrinks: finished.length > 0,
     now: bacAt(normal.points, now),
     nowSafe: bacAt(safe.points, now),

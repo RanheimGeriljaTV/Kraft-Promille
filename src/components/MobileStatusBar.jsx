@@ -3,7 +3,7 @@ import { level } from '../utils/bacCalculator';
 import { dayLabel, formatPromille, roundUp5, toHHMM } from '../utils/time';
 import { LEVEL_STYLE } from './levels';
 
-/** Fast linje nederst på mobil: promillen nå og når «Sikker sone (0,00 ‰)» nås. */
+/** Fast linje nederst på mobil: promillen nå og forsiktig anslag for når 0,00 ‰ nås, med lenke til vilkårene. */
 export default function MobileStatusBar({ result, now }) {
   const { hasDrinks, safe } = result;
   const safeAt = hasDrinks && safe.soberAt !== null ? roundUp5(safe.soberAt) : null;
@@ -21,7 +21,15 @@ export default function MobileStatusBar({ result, now }) {
     >
       <div className="mx-auto flex max-w-[640px] items-center justify-between gap-3 pt-2.5">
         <div>
-          <p className="font-mono text-[10px] tracking-wide text-zinc-400 uppercase">Promille nå</p>
+          <p className="font-mono text-[10px] tracking-wide text-zinc-400 uppercase">
+            Promille nå ·{' '}
+            <a
+              href="#vilkar"
+              className="-mx-3 -my-4 inline-flex items-center px-3 py-4 underline underline-offset-2 hover:text-white"
+            >
+              vilkår
+            </a>
+          </p>
           <p
             className={`font-syne text-3xl leading-none font-black tracking-tighter tabular-nums ${hasDrinks ? style.text : 'text-white'}`}
           >
@@ -32,13 +40,13 @@ export default function MobileStatusBar({ result, now }) {
         <div className="text-right">
           <p className="flex items-center justify-end gap-1 font-mono text-[10px] tracking-wide text-emerald-300 uppercase">
             <ShieldCheck aria-hidden="true" className="size-3.5" />
-            Sikker sone (0,00 ‰)
+            Forsiktig anslag 0,00 ‰
           </p>
           {safeAt === null ? (
             <p className="text-sm text-zinc-400">Ingen enheter</p>
           ) : (
             <p className="font-syne text-xl leading-tight font-black text-white tabular-nums">
-              {safeAt <= now ? 'Nådd' : `kl. ${toHHMM(safeAt)}`}
+              {safeAt <= now ? 'Anslag nådd' : `kl. ${toHHMM(safeAt)}`}
               <span className="ml-1.5 font-mono text-[11px] font-normal text-zinc-400">
                 {dayLabel(safeAt, now) !== 'i dag' && dayLabel(safeAt, now)}
               </span>

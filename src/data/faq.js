@@ -11,7 +11,7 @@ export const FAQ = [
   {
     question: 'Hvor lenge til jeg er edru?',
     answer:
-      'Kroppen forbrenner i snitt rundt 0,15 promille i timen, men noen forbrenner bare 0,10. Kalkulatoren viser begge, og «Sikker sone» er det tryggeste anslaget. Det er likevel bare et estimat, og leverfunksjon, mat og medisiner kan gjøre at du trenger lengre tid.',
+      'Kroppen forbrenner i snitt rundt 0,15 promille i timen, men noen forbrenner bare 0,10. Kalkulatoren viser begge, og «Forsiktig anslag» er det tryggeste. Det er likevel bare et estimat, og leverfunksjon, mat og medisiner kan gjøre at du trenger lengre tid.',
   },
   {
     question: 'Når kan jeg kjøre bil etter å ha drukket?',
@@ -21,7 +21,7 @@ export const FAQ = [
   {
     question: 'Hva er 12-timersregelen?',
     answer:
-      'En tommelfingerregel om å vente 12 timer etter siste enhet før du kjører, men den er ikke til å stole på. Hvor lang tid du trenger, avhenger av hvor mye, hvor sterkt og hvor tett du har drukket, så bruk heller sikker sone.',
+      'En tommelfingerregel om å vente 12 timer etter siste enhet før du kjører, men den er ikke til å stole på. Hvor lang tid du trenger, avhenger av hvor mye, hvor sterkt og hvor tett du har drukket, så bruk heller det forsiktige anslaget.',
   },
   {
     question: 'Hvor mye er en alkoholenhet?',
